@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Plumbing tools</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plumbing">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#0f172a;color:#e2e8f0;padding:max(24px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) 32px max(18px,env(safe-area-inset-left))}
+main{max-width:760px;margin:0 auto}h1{font-size:22px;margin:4px 0 2px}p.sub{color:#94a3b8;margin:0 0 22px;font-size:13px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+a.card{display:block;text-decoration:none;color:inherit;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;min-height:44px}
+a.card:hover,a.card:focus{border-color:#3b82f6;background:#22304a}
+.card b{display:block;font-size:16px;margin-bottom:4px;color:#fff}.card span{color:#94a3b8;font-size:13px}.ico{font-size:24px;display:block;margin-bottom:8px}
+.card.minor{opacity:.85}footer{margin-top:26px;color:#64748b;font-size:12px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Plumbing tools</h1>
+  <p class="sub">Commercial / public sizing calculators. Everything runs in your browser and works offline after the first visit. Projects save to files on your device.</p>
+  <div class="grid">
+    <a class="card" href="dwv/"><span class="ico">🚽</span><b>Waste &amp; vent sizer</b><span>Plumbing Sizer Studio: place fixtures on a plan, draw waste and vent, DFU and pipe sizes per UPC 2024 / Clark Co.</span></a>
+    <a class="card" href="storm/"><span class="ico">🌧️</span><b>Roof drain &amp; storm pipe</b><span>Horizontal and vertical storm sizing, Las Vegas 1.5 in/h default, area log with PDF export.</span></a>
+    <a class="card minor" href="classic/"><span class="ico">📐</span><b>Classic DWV sizer</b><span>The Workspace Planner version (.dwv files): polyline mains, CWV, floor-sink switcher, check list.</span></a>
+  </div>
+  <footer>Verify sizes against the printed code and the authority having jurisdiction before issuing drawings.</footer>
+</main>
+<script>if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js');</script>
+</body>
+</html>

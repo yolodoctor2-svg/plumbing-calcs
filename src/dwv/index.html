@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>MEP Plumbing Sizer Studio — UPC 2024 & Clark County NV</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+
+<!-- TOP TOOLBAR -->
+<div class="topbar">
+  <button class="btn mobile-only" id="btnDrawerLeft" title="Fixture list">☰ Fixtures</button>
+  <button class="btn mobile-only" id="btnDrawerRight" title="Inspector &amp; pipe schedule">ⓘ Info</button>
+  <div class="brand">
+    <a href="../" title="All plumbing tools" style="color:#93c5fd;text-decoration:none;">&larr;</a>
+    <span>Plumbing Sizer</span>
+    <span class="badge">UPC 2024 + Clark Co.</span>
+  </div>
+
+  <div class="tool-group">
+    <input type="file" id="planFileInput" accept=".pdf,image/*" style="display:none">
+    <label for="planFileInput" class="btn primary" title="Import PDF Plan or Image">
+      📄 Plan
+    </label>
+    <div id="pdfPageControls" style="display:none; align-items:center; gap:3px;">
+      <button class="btn" onclick="changePdfPage(-1)">◀</button>
+      <span id="pdfPageLabel" style="font-size:10.5px; padding:0 3px;">1/1</span>
+      <button class="btn" onclick="changePdfPage(1)">▶</button>
+    </div>
+
+    <!-- Save / Open Project File -->
+    <button class="btn success" onclick="saveProjectFile()" title="Save whole project (pipes, fixtures & plan) to a .plumb.json file [Ctrl+S]">
+      💾 Save
+    </button>
+    <input type="file" id="projectFileInput" accept=".json,.plumb" style="display:none">
+    <label for="projectFileInput" class="btn" title="Open a saved project file (.plumb.json)">
+      📂 Open
+    </label>
+
+    <button class="btn" id="btnCalibrate" onclick="setTool('calibrate')" title="Click 2 points on plan to calibrate scale">
+      📏 Scale
+    </button>
+    <label style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:3px;" title="Plan Underlay Opacity">
+      Plan
+      <input type="range" id="planOpacity" min="10" max="100" value="70" style="width:44px" oninput="updatePlanOpacity(this.value)">
+    </label>
+  </div>
+
+  <div class="tool-group">
+    <button class="btn active" id="tool-select" onclick="setTool('select')">↖ Select <kbd>V</kbd></button>
+    <button class="btn" id="tool-fixture" onclick="setTool('fixture')">🚽 Fixture <kbd>F</kbd></button>
+    <button class="btn" id="tool-pipe" onclick="setTool('pipe')">🟦 Waste <kbd>W</kbd></button>
+    <button class="btn" id="tool-stack" onclick="setTool('stack')">⭕ Stack <kbd>S</kbd></button>
+    <button class="btn" id="tool-vent" onclick="setTool('vent')">🟧 Vent <kbd>D</kbd></button>
+    <button class="btn" id="tool-vtr" onclick="setTool('vtr')">🔺 VTR <kbd>T</kbd></button>
+  </div>
+
+  <div class="tool-group">
+    <select id="codeMode" class="top-select" onchange="recalculateNetwork()">
+      <option value="UPC2024">UPC 2024 (Clark Co.)</option>
+      <option value="IPC2024">IPC 2024</option>
+    </select>
+    <select id="defaultSlope" class="top-select" onchange="recalculateNetwork()">
+      <option value="0.25">1/4" / ft</option>
+      <option value="0.125">1/8" / ft</option>
+    </select>
+    <button class="btn" id="btnOrtho" onclick="toggleOrtho()">📐 Ortho</button>
+    <label style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:3px;" title="Adjust Fixture & Tag Size on Plan">
+      Size
+      <input type="range" id="symbolScaleSlider" min="0.5" max="3.0" step="0.1" value="1.2" style="width:44px" oninput="updateSymbolScale(this.value)">
+    </label>
+  </div>
+
+  <div class="tool-group" style="border-right:none">
+    <button class="btn active" id="visWaste" onclick="toggleLayer('waste')">Waste</button>
+    <button class="btn active" id="visVent" onclick="toggleLayer('vent')">Vent</button>
+    <button class="btn active" id="visLabels" onclick="toggleLayer('labels')">Tags</button>
+    <button class="btn" onclick="fitView()" title="Zoom to Extents (or Double-Click Wheel)">Fit</button>
+    <button class="btn" onclick="exportCSV()">CSV</button>
+    <button class="btn danger" onclick="openConfirmClearModal()">Clear</button>
+  </div>
+</div>
+
+<!-- MAIN WORKSPACE -->
+<div class="workspace">
+
+  <!-- LEFT SIDEBAR: UPC FIXTURE LIST -->
+  <div class="sidebar-left">
+    <div class="panel-header">
+      <div class="panel-title-row">
+        <span class="panel-title">UPC Fixtures (<span id="fixtureCountLabel">46</span>)</span>
+        <button class="icon-btn-dots" onclick="openFixtureManagerModal()" title="More Options — Edit Fixture Values & Add Custom Fixtures">⋮</button>
+      </div>
+      <input type="text" id="fixtureSearch" class="search-input" placeholder="Search (WC, FD, Lav, Sink)..." oninput="renderFixtureCatalog()">
+      <div class="cat-tabs">
+        <div class="cat-tab active" onclick="setCategory('ALL', this)">All</div>
+        <div class="cat-tab" onclick="setCategory('RESTROOM', this)">Restroom</div>
+        <div class="cat-tab" onclick="setCategory('DRAIN', this)">Drains</div>
+        <div class="cat-tab" onclick="setCategory('SINK', this)">Sinks</div>
+        <div class="cat-tab" onclick="setCategory('MED', this)">Med/Bath</div>
+      </div>
+    </div>
+    <div class="fixture-list" id="fixtureListContainer"></div>
+  </div>
+
+  <!-- CENTER: DUAL-LAYER CANVAS -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="bgCanvas" class="canvas-layer"></canvas>
+    <canvas id="fgCanvas" class="canvas-layer"></canvas>
+
+    <div class="legend-bar">
+      <span style="font-weight:700; color:#94a3b8;">Ø:</span>
+      <div class="legend-item"><span class="legend-swatch" style="background:#a3e635"></span>1¼"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#facc15"></span>1½"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#22d3ee"></span>2"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#3b82f6"></span>3"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#a855f7"></span>4"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#ec4899"></span>6"+</div>
+      <span style="margin-left:4px; color:#fb923c; font-weight:700;">- - Vent</span>
+    </div>
+
+    <div id="statusToast" class="toast-banner">
+      Tip: Custom sizes save automatically as your personal defaults across browser reloads!
+    </div>
+
+    <div class="canvas-hud">
+      <span id="hudTool">Tool: SELECT</span>
+      <span>|</span>
+      <span id="hudScale">10.0 px = 1'</span>
+      <span>|</span>
+      <span id="hudCoords">0.0', 0.0'</span>
+      <span>|</span>
+      <span>AutoCAD Nav: Middle Drag Pan • Wheel Zoom • Double Click Wheel to Zoom Extents</span>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR: INSPECTOR & SCHEDULE -->
+  <div class="sidebar-right">
+    <div class="inspector-box">
+      <div class="panel-title" style="margin-bottom:4px;">Element Inspector</div>
+      <div id="inspectorContent" style="color:var(--text-muted); font-size:11px; line-height:1.35;">
+        Select any fixture, pipe, or stack on the canvas to inspect or override its properties. You can also drag fixtures in Select (V) mode.
+      </div>
+    </div>
+
+    <div class="schedule-box">
+      <div class="panel-header" style="padding:6px 10px;">
+        <div class="panel-title-row">
+          <span class="panel-title">Pipe Schedule</span>
+          <div style="display:flex; gap:3px;">
+            <button class="btn active" id="schedTabAll" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('ALL')">All</button>
+            <button class="btn" id="schedTabWaste" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('waste')">Waste</button>
+            <button class="btn" id="schedTabVent" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('vent')">Vent</button>
+          </div>
+        </div>
+        <div id="systemSummaryStats" style="font-size:10.5px; color:#38bdf8; font-weight:600;">
+          Total: 0.0 DFU | 0 Fixtures | 0 Pipes
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="sched-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Sys</th>
+              <th>DFU</th>
+              <th>Min</th>
+              <th>Size</th>
+              <th>Len</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL 1: 3-DOT FIXTURE LIBRARY EDITOR -->
+<div class="modal-backdrop" id="fixtureManagerModal" onclick="if(event.target===this) closeFixtureManagerModal()">
+  <div class="modal-xl">
+    <div class="modal-header">
+      <h3>Edit Fixture Library & Persistent Defaults (UPC 2024 / Clark County NV)</h3>
+      <button class="btn" onclick="closeFixtureManagerModal()">✕ Close</button>
+    </div>
+
+    <div class="modal-toolbar">
+      <div class="new-fixture-bar">
+        <div class="nf-field" style="width:80px;">
+          <label>Code</label>
+          <input type="text" id="newFixCode" placeholder="e.g. FD-SP">
+        </div>
+        <div class="nf-field" style="flex:1; min-width:150px;">
+          <label>Description</label>
+          <input type="text" id="newFixName" placeholder="e.g. Custom Trench Drain">
+        </div>
+        <div class="nf-field" style="width:105px;">
+          <label>Category</label>
+          <select id="newFixCat">
+            <option value="RESTROOM">Restroom</option>
+            <option value="DRAIN" selected>Drains</option>
+            <option value="SINK">Sinks</option>
+            <option value="MED">Med/Bath</option>
+          </select>
+        </div>
+        <div class="nf-field" style="width:65px;">
+          <label>DFU</label>
+          <input type="number" step="0.5" min="0" id="newFixDfu" value="2.0">
+        </div>
+        <div class="nf-field" style="width:80px;">
+          <label>Min Waste</label>
+          <select id="newFixWaste">
+            <option value="1.25">1-1/4"</option>
+            <option value="1.5">1-1/2"</option>
+            <option value="2" selected>2"</option>
+            <option value="2.5">2-1/2"</option>
+            <option value="3">3"</option>
+            <option value="4">4"</option>
+            <option value="6">6"</option>
+          </select>
+        </div>
+        <div class="nf-field" style="width:80px;">
+          <label>Min Vent</label>
+          <select id="newFixVent">
+            <option value="1.25">1-1/4"</option>
+            <option value="1.5" selected>1-1/2"</option>
+            <option value="2">2"</option>
+            <option value="2.5">2-1/2"</option>
+            <option value="3">3"</option>
+            <option value="4">4"</option>
+          </select>
+        </div>
+        <div class="nf-field" style="align-items:center; padding-bottom:3px;">
+          <label>WC</label>
+          <input type="checkbox" id="newFixWC" style="width:14px; height:14px;">
+        </div>
+        <button class="btn primary" onclick="addNewFixtureFromModal()">+ Add</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <input type="text" id="modalFixtureSearch" class="search-input" style="max-width:300px;" placeholder="Filter table..." oninput="renderModalFixtureTable()">
+        <span style="font-size:10.5px; color:var(--text-muted);">Edits save automatically to your browser as your permanent defaults.</span>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <table class="edit-fix-table">
+        <thead>
+          <tr>
+            <th style="width:80px;">Code</th>
+            <th>Description</th>
+            <th style="width:110px;">Category</th>
+            <th style="width:80px;">DFU</th>
+            <th style="width:100px;">Min Waste</th>
+            <th style="width:100px;">Min Vent</th>
+            <th style="width:60px; text-align:center;">WC</th>
+            <th style="width:50px; text-align:center;">Del</th>
+          </tr>
+        </thead>
+        <tbody id="modalFixtureTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn danger" onclick="resetDefaultFixtures()">↺ Reset to UPC 2024 Defaults</button>
+      <div style="display:flex; gap:6px;">
+        <button class="btn success" onclick="saveAsMyDefaults()">⭐ Save as My Defaults</button>
+        <button class="btn primary" onclick="closeFixtureManagerModal()">✓ Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: SCALE CALIBRATION -->
+<div class="modal-backdrop" id="scaleModal">
+  <div class="modal-sm">
+    <h3 style="margin-bottom:8px; font-size:13.5px;">📏 Set Real-World Distance</h3>
+    <p style="color:var(--text-muted); font-size:11px; margin-bottom:10px;">
+      Enter the real distance (in feet) between the two points you clicked:
+    </p>
+    <input type="number" id="scaleFeetInput" class="search-input" value="10" step="0.5" min="0.5" style="margin-bottom:12px; font-size:13px;">
+    <div style="display:flex; justify-content:flex-end; gap:6px;">
+      <button class="btn" onclick="closeScaleModal(false)">Cancel</button>
+      <button class="btn primary" onclick="closeScaleModal(true)">Apply Scale</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: CLEAR CONFIRMATION -->
+<div class="modal-backdrop" id="clearModal">
+  <div class="modal-sm">
+    <h3 style="margin-bottom:8px; font-size:13.5px;">🗑️ Clear Drawing?</h3>
+    <p style="color:var(--text-muted); font-size:11px; margin-bottom:12px;">
+      This will remove all placed fixtures and pipes. Your loaded plan will remain.
+    </p>
+    <div style="display:flex; justify-content:flex-end; gap:6px;">
+      <button class="btn" onclick="document.getElementById('clearModal').classList.remove('open')">Cancel</button>
+      <button class="btn danger" onclick="confirmClearDrawing()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

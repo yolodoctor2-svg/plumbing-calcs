@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEP Plumbing Sizer Studio — UPC 2024 & Clark County NV</title>
+<!-- Load both pdf.min.js and pdf.worker.min.js directly for Google Sites iframe sandbox compatibility -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<style>
+  :root {
+    --bg-dark: #0f172a;
+    --bg-panel: #1e293b;
+    --bg-card: #263349;
+    --bg-input: #0b1120;
+    --border: #334155;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --success: #22c55e;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    min-height: 540px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-size: 12px;
+  }
+
+  /* Top Toolbar */
+  .topbar {
+    height: 46px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
+    flex-shrink: 0;
+    overflow-x: auto;
+  }
+  .brand {
+    font-weight: 700;
+    font-size: 12.5px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-right: 8px;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .brand span.badge {
+    background: #1d4ed8;
+    color: #dbeafe;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+  .tool-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 6px;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .btn {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #334155; border-color: #475569; }
+  .btn.active { background: var(--accent); border-color: #60a5fa; color: #fff; }
+  .btn.active-vent { background: #ea580c; border-color: #fb923c; color: #fff; }
+  .btn.primary { background: var(--accent); border-color: var(--accent-hover); color: #fff; }
+  .btn.primary:hover { background: var(--accent-hover); }
+  .btn.success { background: #15803d; border-color: #22c55e; color: #fff; }
+  .btn.success:hover { background: #16a34a; }
+  .btn.danger { color: #fca5a5; }
+  .btn.danger:hover { background: #7f1d1d; color: #fff; }
+  .btn kbd {
+    background: rgba(0,0,0,0.3);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-family: monospace;
+  }
+  .icon-btn-dots {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    width: 28px;
+    height: 26px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .icon-btn-dots:hover { background: var(--accent); color: #fff; }
+  select.top-select {
+    background: var(--bg-input);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 4px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  /* Workspace Layout */
+  .workspace {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Left Sidebar: Fixture List */
+  .sidebar-left {
+    width: 285px;
+    min-height: 0;
+    height: 100%;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .panel-header {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .panel-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .panel-title {
+    font-weight: 700;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #cbd5e1;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .cat-tabs { display: flex; gap: 3px; }
+  .cat-tab {
+    flex: 1;
+    text-align: center;
+    padding: 4px 2px;
+    font-size: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .cat-tab.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: #60a5fa;
+  }
+  .fixture-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .fixture-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .fixture-card:hover { border-color: #64748b; background: #2d3d56; }
+  .fixture-card.selected {
+    border-color: #38bdf8;
+    background: #1e3a5f;
+    box-shadow: 0 0 0 1px #38bdf8 inset;
+  }
+  .fc-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .fc-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 10px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .fc-name {
+    font-weight: 600;
+    font-size: 11px;
+    color: #f8fafc;
+    flex: 1;
+    line-height: 1.2;
+  }
+  .fc-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    flex-wrap: wrap;
+  }
+  .fc-pill {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(71, 85, 105, 0.6);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+    color: #cbd5e1;
+  }
+  .fc-pill.dfu { color: #4ade80; }
+  .fc-pill.wc  { color: #fbbf24; }
+
+  /* Center Dual-Canvas Area */
+  .canvas-wrap {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    background: #090d16;
+    overflow: hidden;
+  }
+  .canvas-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #bgCanvas { z-index: 1; pointer-events: none; }
+  #fgCanvas { z-index: 2; cursor: crosshair; }
+
+  .legend-bar {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 10;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid var(--border);
+    padding: 5px 8px;
+    border-radius: 5px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 10.5px;
+    pointer-events: none;
+  }
+  .legend-item { display: flex; align-items: center; gap: 3px; }
+  .legend-swatch { width: 10px; height: 4px; border-radius: 2px; }
+
+  .toast-banner {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 15;
+    background: rgba(30, 41, 59, 0.96);
+    border: 1px solid #38bdf8;
+    color: #f8fafc;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    max-width: 360px;
+    pointer-events: none;
+  }
+  .canvas-hud {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    z-index: 10;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid var(--border);
+    padding: 5px 8px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10.5px;
+    color: #cbd5e1;
+    pointer-events: none;
+  }
+
+  /* Right Sidebar: Inspector & Schedule */
+  .sidebar-right {
+    width: 310px;
+    min-height: 0;
+    height: 100%;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .inspector-box {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    min-height: 175px;
+    max-height: 250px;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .prop-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    gap: 6px;
+  }
+  .prop-row label { color: var(--text-muted); font-size: 11px; }
+  .prop-row input, .prop-row select {
+    background: var(--bg-input);
+    color: #fff;
+    border: 1px solid var(--border);
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    width: 135px;
+  }
+  .schedule-box {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .table-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  table.sched-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+  table.sched-table th {
+    background: #131c2e;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 5px 6px;
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid var(--border);
+    z-index: 2;
+  }
+  table.sched-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    cursor: pointer;
+  }
+  table.sched-table tr:hover td { background: rgba(59, 130, 246, 0.14); }
+  table.sched-table tr.selected-row td { background: rgba(59, 130, 246, 0.3); }
+
+  /* Modals */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-xl {
+    background: var(--bg-panel);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    width: 860px;
+    max-width: 96vw;
+    height: 84vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal-sm {
+    background: var(--bg-panel);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    width: 360px;
+    max-width: 92vw;
+    padding: 16px;
+  }
+  .modal-header {
+    padding: 10px 14px;
+    background: #131c2e;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-toolbar {
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .modal-footer {
+    padding: 8px 14px;
+    background: #131c2e;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  table.edit-fix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  table.edit-fix-table th {
+    background: #162032;
+    color: var(--text-muted);
+    padding: 6px 8px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid var(--border);
+    z-index: 5;
+  }
+  table.edit-fix-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  }
+  table.edit-fix-table input[type="text"],
+  table.edit-fix-table input[type="number"],
+  table.edit-fix-table select {
+    background: var(--bg-input);
+    color: #fff;
+    border: 1px solid #475569;
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+    width: 100%;
+  }
+  .new-fixture-bar {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 6px;
+    padding: 6px 8px;
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .nf-field { display: flex; flex-direction: column; gap: 2px; }
+  .nf-field label { font-size: 9.5px; color: #93c5fd; font-weight: 600; }
+  .nf-field input, .nf-field select {
+    background: var(--bg-input);
+    color: #fff;
+    border: 1px solid #475569;
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP TOOLBAR -->
+<div class="topbar">
+  <div class="brand">
+    <span>Plumbing Sizer</span>
+    <span class="badge">UPC 2024 + Clark Co.</span>
+  </div>
+
+  <div class="tool-group">
+    <input type="file" id="planFileInput" accept=".pdf,image/*" style="display:none">
+    <label for="planFileInput" class="btn primary" title="Import PDF Plan or Image">
+      📄 Plan
+    </label>
+    <div id="pdfPageControls" style="display:none; align-items:center; gap:3px;">
+      <button class="btn" onclick="changePdfPage(-1)">◀</button>
+      <span id="pdfPageLabel" style="font-size:10.5px; padding:0 3px;">1/1</span>
+      <button class="btn" onclick="changePdfPage(1)">▶</button>
+    </div>
+
+    <!-- Save / Open Project File -->
+    <button class="btn success" onclick="saveProjectFile()" title="Save whole project (pipes, fixtures & plan) to a .plumb.json file [Ctrl+S]">
+      💾 Save
+    </button>
+    <input type="file" id="projectFileInput" accept=".json,.plumb" style="display:none">
+    <label for="projectFileInput" class="btn" title="Open a saved project file (.plumb.json)">
+      📂 Open
+    </label>
+
+    <button class="btn" id="btnCalibrate" onclick="setTool('calibrate')" title="Click 2 points on plan to calibrate scale">
+      📏 Scale
+    </button>
+    <label style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:3px;" title="Plan Underlay Opacity">
+      Plan
+      <input type="range" id="planOpacity" min="10" max="100" value="70" style="width:44px" oninput="updatePlanOpacity(this.value)">
+    </label>
+  </div>
+
+  <div class="tool-group">
+    <button class="btn active" id="tool-select" onclick="setTool('select')">↖ Select <kbd>V</kbd></button>
+    <button class="btn" id="tool-fixture" onclick="setTool('fixture')">🚽 Fixture <kbd>F</kbd></button>
+    <button class="btn" id="tool-pipe" onclick="setTool('pipe')">🟦 Waste <kbd>W</kbd></button>
+    <button class="btn" id="tool-stack" onclick="setTool('stack')">⭕ Stack <kbd>S</kbd></button>
+    <button class="btn" id="tool-vent" onclick="setTool('vent')">🟧 Vent <kbd>D</kbd></button>
+    <button class="btn" id="tool-vtr" onclick="setTool('vtr')">🔺 VTR <kbd>T</kbd></button>
+  </div>
+
+  <div class="tool-group">
+    <select id="codeMode" class="top-select" onchange="recalculateNetwork()">
+      <option value="UPC2024">UPC 2024 (Clark Co.)</option>
+      <option value="IPC2024">IPC 2024</option>
+    </select>
+    <select id="defaultSlope" class="top-select" onchange="recalculateNetwork()">
+      <option value="0.25">1/4" / ft</option>
+      <option value="0.125">1/8" / ft</option>
+    </select>
+    <button class="btn" id="btnOrtho" onclick="toggleOrtho()">📐 Ortho</button>
+    <label style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:3px;" title="Adjust Fixture & Tag Size on Plan">
+      Size
+      <input type="range" id="symbolScaleSlider" min="0.5" max="3.0" step="0.1" value="1.2" style="width:44px" oninput="updateSymbolScale(this.value)">
+    </label>
+  </div>
+
+  <div class="tool-group" style="border-right:none">
+    <button class="btn active" id="visWaste" onclick="toggleLayer('waste')">Waste</button>
+    <button class="btn active" id="visVent" onclick="toggleLayer('vent')">Vent</button>
+    <button class="btn active" id="visLabels" onclick="toggleLayer('labels')">Tags</button>
+    <button class="btn" onclick="fitView()" title="Zoom to Extents (or Double-Click Wheel)">Fit</button>
+    <button class="btn" onclick="exportCSV()">CSV</button>
+    <button class="btn danger" onclick="openConfirmClearModal()">Clear</button>
+  </div>
+</div>
+
+<!-- MAIN WORKSPACE -->
+<div class="workspace">
+
+  <!-- LEFT SIDEBAR: UPC FIXTURE LIST -->
+  <div class="sidebar-left">
+    <div class="panel-header">
+      <div class="panel-title-row">
+        <span class="panel-title">UPC Fixtures (<span id="fixtureCountLabel">46</span>)</span>
+        <button class="icon-btn-dots" onclick="openFixtureManagerModal()" title="More Options — Edit Fixture Values & Add Custom Fixtures">⋮</button>
+      </div>
+      <input type="text" id="fixtureSearch" class="search-input" placeholder="Search (WC, FD, Lav, Sink)..." oninput="renderFixtureCatalog()">
+      <div class="cat-tabs">
+        <div class="cat-tab active" onclick="setCategory('ALL', this)">All</div>
+        <div class="cat-tab" onclick="setCategory('RESTROOM', this)">Restroom</div>
+        <div class="cat-tab" onclick="setCategory('DRAIN', this)">Drains</div>
+        <div class="cat-tab" onclick="setCategory('SINK', this)">Sinks</div>
+        <div class="cat-tab" onclick="setCategory('MED', this)">Med/Bath</div>
+      </div>
+    </div>
+    <div class="fixture-list" id="fixtureListContainer"></div>
+  </div>
+
+  <!-- CENTER: DUAL-LAYER CANVAS -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="bgCanvas" class="canvas-layer"></canvas>
+    <canvas id="fgCanvas" class="canvas-layer"></canvas>
+
+    <div class="legend-bar">
+      <span style="font-weight:700; color:#94a3b8;">Ø:</span>
+      <div class="legend-item"><span class="legend-swatch" style="background:#a3e635"></span>1¼"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#facc15"></span>1½"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#22d3ee"></span>2"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#3b82f6"></span>3"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#a855f7"></span>4"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#ec4899"></span>6"+</div>
+      <span style="margin-left:4px; color:#fb923c; font-weight:700;">- - Vent</span>
+    </div>
+
+    <div id="statusToast" class="toast-banner">
+      Tip: Custom sizes save automatically as your personal defaults across browser reloads!
+    </div>
+
+    <div class="canvas-hud">
+      <span id="hudTool">Tool: SELECT</span>
+      <span>|</span>
+      <span id="hudScale">10.0 px = 1'</span>
+      <span>|</span>
+      <span id="hudCoords">0.0', 0.0'</span>
+      <span>|</span>
+      <span>AutoCAD Nav: Middle Drag Pan • Wheel Zoom • Double Click Wheel to Zoom Extents</span>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR: INSPECTOR & SCHEDULE -->
+  <div class="sidebar-right">
+    <div class="inspector-box">
+      <div class="panel-title" style="margin-bottom:4px;">Element Inspector</div>
+      <div id="inspectorContent" style="color:var(--text-muted); font-size:11px; line-height:1.35;">
+        Select any fixture, pipe, or stack on the canvas to inspect or override its properties. You can also drag fixtures in Select (V) mode.
+      </div>
+    </div>
+
+    <div class="schedule-box">
+      <div class="panel-header" style="padding:6px 10px;">
+        <div class="panel-title-row">
+          <span class="panel-title">Pipe Schedule</span>
+          <div style="display:flex; gap:3px;">
+            <button class="btn active" id="schedTabAll" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('ALL')">All</button>
+            <button class="btn" id="schedTabWaste" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('waste')">Waste</button>
+            <button class="btn" id="schedTabVent" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('vent')">Vent</button>
+          </div>
+        </div>
+        <div id="systemSummaryStats" style="font-size:10.5px; color:#38bdf8; font-weight:600;">
+          Total: 0.0 DFU | 0 Fixtures | 0 Pipes
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="sched-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Sys</th>
+              <th>DFU</th>
+              <th>Min</th>
+              <th>Size</th>
+              <th>Len</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL 1: 3-DOT FIXTURE LIBRARY EDITOR -->
+<div class="modal-backdrop" id="fixtureManagerModal" onclick="if(event.target===this) closeFixtureManagerModal()">
+  <div class="modal-xl">
+    <div class="modal-header">
+      <h3>Edit Fixture Library & Persistent Defaults (UPC 2024 / Clark County NV)</h3>
+      <button class="btn" onclick="closeFixtureManagerModal()">✕ Close</button>
+    </div>
+
+    <div class="modal-toolbar">
+      <div class="new-fixture-bar">
+        <div class="nf-field" style="width:80px;">
+          <label>Code</label>
+          <input type="text" id="newFixCode" placeholder="e.g. FD-SP">
+        </div>
+        <div class="nf-field" style="flex:1; min-width:150px;">
+          <label>Description</label>
+          <input type="text" id="newFixName" placeholder="e.g. Custom Trench Drain">
+        </div>
+        <div class="nf-field" style="width:105px;">
+          <label>Category</label>
+          <select id="newFixCat">
+            <option value="RESTROOM">Restroom</option>
+            <option value="DRAIN" selected>Drains</option>
+            <option value="SINK">Sinks</option>
+            <option value="MED">Med/Bath</option>
+          </select>
+        </div>
+        <div class="nf-field" style="width:65px;">
+          <label>DFU</label>
+          <input type="number" step="0.5" min="0" id="newFixDfu" value="2.0">
+        </div>
+        <div class="nf-field" style="width:80px;">
+          <label>Min Waste</label>
+          <select id="newFixWaste">
+            <option value="1.25">1-1/4"</option>
+            <option value="1.5">1-1/2"</option>
+            <option value="2" selected>2"</option>
+            <option value="2.5">2-1/2"</option>
+            <option value="3">3"</option>
+            <option value="4">4"</option>
+            <option value="6">6"</option>
+          </select>
+        </div>
+        <div class="nf-field" style="width:80px;">
+          <label>Min Vent</label>
+          <select id="newFixVent">
+            <option value="1.25">1-1/4"</option>
+            <option value="1.5" selected>1-1/2"</option>
+            <option value="2">2"</option>
+            <option value="2.5">2-1/2"</option>
+            <option value="3">3"</option>
+            <option value="4">4"</option>
+          </select>
+        </div>
+        <div class="nf-field" style="align-items:center; padding-bottom:3px;">
+          <label>WC</label>
+          <input type="checkbox" id="newFixWC" style="width:14px; height:14px;">
+        </div>
+        <button class="btn primary" onclick="addNewFixtureFromModal()">+ Add</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <input type="text" id="modalFixtureSearch" class="search-input" style="max-width:300px;" placeholder="Filter table..." oninput="renderModalFixtureTable()">
+        <span style="font-size:10.5px; color:var(--text-muted);">Edits save automatically to your browser as your permanent defaults.</span>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <table class="edit-fix-table">
+        <thead>
+          <tr>
+            <th style="width:80px;">Code</th>
+            <th>Description</th>
+            <th style="width:110px;">Category</th>
+            <th style="width:80px;">DFU</th>
+            <th style="width:100px;">Min Waste</th>
+            <th style="width:100px;">Min Vent</th>
+            <th style="width:60px; text-align:center;">WC</th>
+            <th style="width:50px; text-align:center;">Del</th>
+          </tr>
+        </thead>
+        <tbody id="modalFixtureTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn danger" onclick="resetDefaultFixtures()">↺ Reset to UPC 2024 Defaults</button>
+      <div style="display:flex; gap:6px;">
+        <button class="btn success" onclick="saveAsMyDefaults()">⭐ Save as My Defaults</button>
+        <button class="btn primary" onclick="closeFixtureManagerModal()">✓ Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: SCALE CALIBRATION -->
+<div class="modal-backdrop" id="scaleModal">
+  <div class="modal-sm">
+    <h3 style="margin-bottom:8px; font-size:13.5px;">📏 Set Real-World Distance</h3>
+    <p style="color:var(--text-muted); font-size:11px; margin-bottom:10px;">
+      Enter the real distance (in feet) between the two points you clicked:
+    </p>
+    <input type="number" id="scaleFeetInput" class="search-input" value="10" step="0.5" min="0.5" style="margin-bottom:12px; font-size:13px;">
+    <div style="display:flex; justify-content:flex-end; gap:6px;">
+      <button class="btn" onclick="closeScaleModal(false)">Cancel</button>
+      <button class="btn primary" onclick="closeScaleModal(true)">Apply Scale</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: CLEAR CONFIRMATION -->
+<div class="modal-backdrop" id="clearModal">
+  <div class="modal-sm">
+    <h3 style="margin-bottom:8px; font-size:13.5px;">🗑️ Clear Drawing?</h3>
+    <p style="color:var(--text-muted); font-size:11px; margin-bottom:12px;">
+      This will remove all placed fixtures and pipes. Your loaded plan will remain.
+    </p>
+    <div style="display:flex; justify-content:flex-end; gap:6px;">
+      <button class="btn" onclick="document.getElementById('clearModal').classList.remove('open')">Cancel</button>
+      <button class="btn danger" onclick="confirmClearDrawing()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   1. UPC 2024 FACTORY DEFAULT FIXTURES (46 FIXTURES)
+   ========================================================================= */
+const DEFAULT_UPC_FIXTURES = [
+  { code: 'WC-P',   name: 'Water Closet, Public (Flushometer >1.6 gpf)', category: 'RESTROOM', dfu: 6.0, minWaste: 3.0, minVent: 2.0, isWC: true,  color: '#2563eb' },
+  { code: 'WC-P16', name: 'Water Closet, Public (1.6 gpf Low-Flow)',     category: 'RESTROOM', dfu: 4.0, minWaste: 3.0, minVent: 2.0, isWC: true,  color: '#3b82f6' },
+  { code: 'WC-R',   name: 'Water Closet, Private / Residential (1.6 gpf)',category: 'RESTROOM', dfu: 3.0, minWaste: 3.0, minVent: 1.5, isWC: true,  color: '#60a5fa' },
+  { code: 'WC-R6',  name: 'Water Closet, Private (>1.6 gpf)',            category: 'RESTROOM', dfu: 4.0, minWaste: 3.0, minVent: 2.0, isWC: true,  color: '#3b82f6' },
+  { code: 'UR-W',   name: 'Urinal, Wall-Mounted (≤1.0 gpf)',             category: 'RESTROOM', dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#0891b2' },
+  { code: 'UR-P',   name: 'Urinal, Pedestal or >1.0 gpf',                category: 'RESTROOM', dfu: 6.0, minWaste: 2.0, minVent: 2.0, isWC: false, color: '#0e7490' },
+  { code: 'UR-NW',  name: 'Urinal, Nonwater (Waterless)',                category: 'RESTROOM', dfu: 1.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#06b6d4' },
+  { code: 'LAV-1',  name: 'Lavatory, Single (1-1/4" Trap)',              category: 'RESTROOM', dfu: 1.0, minWaste: 1.25,minVent: 1.25,isWC: false, color: '#14b8a6' },
+  { code: 'LAV-C',  name: 'Lavatory, Commercial (1-1/2" Drain)',         category: 'RESTROOM', dfu: 1.0, minWaste: 1.5, minVent: 1.25,isWC: false, color: '#0d9488' },
+  { code: 'LAV-S',  name: 'Lavatory, in Sets of 2 or 3',                 category: 'RESTROOM', dfu: 2.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#0f766e' },
+  { code: 'WF-15',  name: 'Washfountain (1-1/2" Trap)',                  category: 'RESTROOM', dfu: 2.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#10b981' },
+  { code: 'WF-20',  name: 'Washfountain (2" Trap)',                      category: 'RESTROOM', dfu: 3.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#059669' },
+  { code: 'BID',    name: 'Bidet',                                       category: 'RESTROOM', dfu: 1.0, minWaste: 1.25,minVent: 1.25,isWC: false, color: '#38bdf8' },
+  { code: 'FD-E',   name: 'Floor Drain, Emergency / Restroom (Clark Co.)', category: 'DRAIN',  dfu: 0.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#22c55e' },
+  { code: 'FD-2',   name: 'Floor Drain, Standard Active (2" Trap)',      category: 'DRAIN',    dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#16a34a' },
+  { code: 'FD-3',   name: 'Floor Drain, High-Capacity (3" Trap)',        category: 'DRAIN',    dfu: 3.0, minWaste: 3.0, minVent: 1.5, isWC: false, color: '#15803d' },
+  { code: 'FD-4',   name: 'Floor Drain, Heavy Duty (4" Trap)',           category: 'DRAIN',    dfu: 4.0, minWaste: 4.0, minVent: 2.0, isWC: false, color: '#166534' },
+  { code: 'FD-FP',  name: 'Floor Drain, Fire Pump Rm (Clark Co. 3" Min)',category: 'DRAIN',    dfu: 0.0, minWaste: 3.0, minVent: 1.5, isWC: false, color: '#dc2626' },
+  { code: 'FS-2',   name: 'Floor Sink / Indirect Receptor (2" Trap)',    category: 'DRAIN',    dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#84cc16' },
+  { code: 'FS-3',   name: 'Floor Sink / Indirect Receptor (3" Trap)',    category: 'DRAIN',    dfu: 4.0, minWaste: 3.0, minVent: 2.0, isWC: false, color: '#65a30d' },
+  { code: 'FS-4',   name: 'Floor Sink / Indirect Receptor (4" Trap)',    category: 'DRAIN',    dfu: 6.0, minWaste: 4.0, minVent: 2.0, isWC: false, color: '#4d7c0f' },
+  { code: 'GI-2',   name: 'Grease Interceptor, Hydromechanical (2")',    category: 'DRAIN',    dfu: 3.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#eab308' },
+  { code: 'GI-3',   name: 'Grease Interceptor, Commercial (3")',         category: 'DRAIN',    dfu: 4.0, minWaste: 3.0, minVent: 2.0, isWC: false, color: '#ca8a04' },
+  { code: 'GI-4',   name: 'Grease Interceptor, Gravity (4")',            category: 'DRAIN',    dfu: 6.0, minWaste: 4.0, minVent: 2.0, isWC: false, color: '#a16207' },
+  { code: 'OI-3',   name: 'Sand / Oil Interceptor (3" Trap)',            category: 'DRAIN',    dfu: 6.0, minWaste: 3.0, minVent: 2.0, isWC: false, color: '#78716c' },
+  { code: 'TD-2',   name: 'Trench Drain / Area Drain (2" Trap)',         category: 'DRAIN',    dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#4ade80' },
+  { code: 'SK-3C',  name: 'Sink, Commercial 3-Comp / Pot / Scullery',    category: 'SINK',     dfu: 3.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#f97316' },
+  { code: 'SK-PR',  name: 'Sink, Commercial Prep / Vegetable (1-1/2")',  category: 'SINK',     dfu: 2.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#fb923c' },
+  { code: 'SK-HW',  name: 'Sink, Commercial Handwash',                   category: 'SINK',     dfu: 1.0, minWaste: 1.5, minVent: 1.25,isWC: false, color: '#fdba74' },
+  { code: 'SK-K',   name: 'Sink, Kitchen / Breakroom (w/ or w/o Disp.)', category: 'SINK',     dfu: 2.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#ea580c' },
+  { code: 'SK-B1',  name: 'Sink, Bar (Private, 1-1/2" Trap)',            category: 'SINK',     dfu: 1.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#f59e0b' },
+  { code: 'SK-B2',  name: 'Sink, Bar (Commercial, 2" Trap)',             category: 'SINK',     dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#d97706' },
+  { code: 'MS-3',   name: 'Mop Basin / Service Sink (3" Floor Mounted)', category: 'SINK',     dfu: 3.0, minWaste: 3.0, minVent: 1.5, isWC: false, color: '#8b5cf6' },
+  { code: 'SS-2',   name: 'Service / Janitor Sink (2" Wall Trap)',       category: 'SINK',     dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#a78bfa' },
+  { code: 'DW-C',   name: 'Dishwasher, Commercial (2" Trap)',            category: 'SINK',     dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#ec4899' },
+  { code: 'DW-R',   name: 'Dishwasher, Residential / Breakroom',         category: 'SINK',     dfu: 2.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#f472b6' },
+  { code: 'CW-R',   name: 'Clothes Washer, Domestic (2" Standpipe)',     category: 'SINK',     dfu: 3.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#6366f1' },
+  { code: 'CW-C',   name: 'Clothes Washer, Commercial',                  category: 'SINK',     dfu: 4.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#4f46e5' },
+  { code: 'LT-1',   name: 'Laundry Tub (1 or 2 Compartments)',           category: 'SINK',     dfu: 2.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#818cf8' },
+  { code: 'DF-1',   name: 'Drinking Fountain / Water Cooler',            category: 'SINK',     dfu: 0.5, minWaste: 1.25,minVent: 1.25,isWC: false, color: '#38bdf8' },
+  { code: 'DF-2',   name: 'Drinking Fountain, Bi-Level (2 Units)',       category: 'SINK',     dfu: 1.0, minWaste: 1.25,minVent: 1.25,isWC: false, color: '#0284c7' },
+  { code: 'SH-1',   name: 'Shower, Single-Head Stall (2" Trap)',         category: 'MED',      dfu: 2.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#06b6d4' },
+  { code: 'SH-G',   name: 'Shower, Gang (per head)',                     category: 'MED',      dfu: 1.0, minWaste: 2.0, minVent: 1.5, isWC: false, color: '#0891b2' },
+  { code: 'BT-1',   name: 'Bathtub (with or without Overhead Shower)',   category: 'MED',      dfu: 2.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#0284c7' },
+  { code: 'SK-CL',  name: 'Sink, Clinical / Bedpan Washer (3")',         category: 'MED',      dfu: 6.0, minWaste: 3.0, minVent: 2.0, isWC: true,  color: '#e11d48' },
+  { code: 'SK-SRG', name: 'Sink, Surgical / Medical Scrub',              category: 'MED',      dfu: 3.0, minWaste: 1.5, minVent: 1.5, isWC: false, color: '#f43f5e' },
+  { code: 'DENT',   name: 'Dental Unit / Cuspidor or Aspirator',         category: 'MED',      dfu: 1.0, minWaste: 1.25,minVent: 1.25,isWC: false, color: '#fb7185' }
+];
+
+const STORAGE_KEY = 'user_plumb_defaults_v10';
+let fixtureCatalog = [];
+let activeCategory = 'ALL';
+let selectedCatalogCode = 'WC-P16';
+
+function loadFixtureCatalog() {
+  fixtureCatalog = JSON.parse(JSON.stringify(DEFAULT_UPC_FIXTURES));
+  try {
+    const raw = window.localStorage && localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length >= 5) {
+        fixtureCatalog = parsed;
+      }
+    }
+  } catch (e) {}
+}
+
+function saveFixtureCatalog() {
+  try {
+    if (window.localStorage) localStorage.setItem(STORAGE_KEY, JSON.stringify(fixtureCatalog));
+  } catch (e) {}
+}
+
+function saveAsMyDefaults() {
+  saveFixtureCatalog();
+  showToast('⭐ Saved current fixture catalog as your permanent user defaults!');
+}
+
+function resetDefaultFixtures() {
+  if (!confirm('Revert all fixtures back to factory default UPC 2024 & Clark County values?')) return;
+  fixtureCatalog = JSON.parse(JSON.stringify(DEFAULT_UPC_FIXTURES));
+  saveFixtureCatalog();
+  renderFixtureCatalog();
+  renderModalFixtureTable();
+  recalculateNetwork();
+  showToast('Restored factory UPC 2024 defaults.');
+}
+
+/* =========================================================================
+   2. APPLICATION STATE
+   ========================================================================= */
+let state = {
+  tool: 'select',
+  ortho: false,
+  symbolScale: 1.2,
+  schedFilter: 'ALL',
+  layers: { waste: true, vent: true, labels: true },
+  pxPerFoot: 10.0,
+  cam: { x: 60, y: 50, zoom: 1.0 },
+  plan: {
+    surface: null,
+    pdfDoc: null,
+    pageNum: 1,
+    totalPages: 1,
+    opacity: 0.70,
+    width: 1000,
+    height: 700
+  },
+  nodes: [],
+  pipes: [],
+  nextId: 1,
+  selected: null,
+  activeChainNodeId: null,
+  calibratePt1: null,
+  pendingCalibrateDistPx: 0
+};
+
+const PIPE_SIZES = [1.25, 1.5, 2.0, 2.5, 3.0, 4.0, 6.0, 8.0];
+const SIZE_LABELS = {
+  1.25: '1-1/4"', 1.5: '1-1/2"', 2: '2"', 2.5: '2-1/2"',
+  3: '3"', 4: '4"', 6: '6"', 8: '8"'
+};
+const SIZE_COLORS = {
+  1.25: '#a3e635', 1.5: '#facc15', 2.0: '#22d3ee', 2.5: '#38bdf8',
+  3.0: '#3b82f6', 4.0: '#a855f7', 6.0: '#ec4899', 8.0: '#f43f5e'
+};
+function fmtSize(sz) { return SIZE_LABELS[sz] || (sz + '"'); }
+
+/* =========================================================================
+   3. SAVE & REOPEN PROJECT FILE (.plumb.json)
+   ========================================================================= */
+function getPlanDataUrl() {
+  if (!state.plan.surface) return null;
+  try {
+    if (state.plan.surface instanceof HTMLCanvasElement) {
+      return state.plan.surface.toDataURL('image/jpeg', 0.78);
+    } else if (state.plan.surface instanceof HTMLImageElement) {
+      const c = document.createElement('canvas');
+      c.width = state.plan.width;
+      c.height = state.plan.height;
+      const cx = c.getContext('2d');
+      cx.drawImage(state.plan.surface, 0, 0);
+      return c.toDataURL('image/jpeg', 0.78);
+    }
+  } catch (e) {
+    console.warn('Could not serialize background plan:', e);
+  }
+  return null;
+}
+
+function saveProjectFile() {
+  const planDataUrl = getPlanDataUrl();
+  const project = {
+    version: "1.0",
+    appName: "PlumbingSizerStudio",
+    savedAt: new Date().toISOString(),
+    codeMode: document.getElementById('codeMode').value,
+    defaultSlope: parseFloat(document.getElementById('defaultSlope').value) || 0.25,
+    pxPerFoot: state.pxPerFoot,
+    symbolScale: state.symbolScale,
+    cam: state.cam,
+    nextId: state.nextId,
+    nodes: state.nodes,
+    pipes: state.pipes,
+    fixtureCatalog: fixtureCatalog,
+    plan: {
+      width: state.plan.width,
+      height: state.plan.height,
+      opacity: state.plan.opacity,
+      pageNum: state.plan.pageNum,
+      totalPages: state.plan.totalPages,
+      dataUrl: planDataUrl
+    }
+  };
+
+  const json = JSON.stringify(project);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  const d = new Date();
+  const dateStr = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+  a.download = `plumbing_project_${dateStr}.plumb.json`;
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  showToast(`Saved project: ${state.nodes.length} nodes, ${state.pipes.length} pipes.`);
+}
+
+document.getElementById('projectFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  try {
+    showToast(`Opening "${file.name}"...`);
+    const text = await file.text();
+    const proj = JSON.parse(text);
+
+    if (!proj || !Array.isArray(proj.nodes) || !Array.isArray(proj.pipes)) {
+      throw new Error("Invalid project file structure (missing nodes/pipes).");
+    }
+
+    if (proj.codeMode) document.getElementById('codeMode').value = proj.codeMode;
+    if (proj.defaultSlope) document.getElementById('defaultSlope').value = proj.defaultSlope;
+    if (proj.symbolScale) {
+      state.symbolScale = proj.symbolScale;
+      document.getElementById('symbolScaleSlider').value = proj.symbolScale;
+    }
+    if (proj.pxPerFoot) {
+      state.pxPerFoot = proj.pxPerFoot;
+      document.getElementById('hudScale').textContent = `${state.pxPerFoot.toFixed(1)} px = 1'`;
+    }
+
+    if (Array.isArray(proj.fixtureCatalog) && proj.fixtureCatalog.length > 0) {
+      fixtureCatalog = proj.fixtureCatalog;
+      saveFixtureCatalog();
+      renderFixtureCatalog();
+    }
+
+    state.nodes = proj.nodes;
+    state.pipes = proj.pipes;
+    state.nextId = proj.nextId || (Math.max(0, ...state.nodes.map(n=>n.id), ...state.pipes.map(p=>p.id)) + 1);
+    if (proj.cam) state.cam = proj.cam;
+
+    if (proj.plan && proj.plan.dataUrl) {
+      const img = new Image();
+      img.onload = () => {
+        state.plan.surface = img;
+        state.plan.width = proj.plan.width || img.width;
+        state.plan.height = proj.plan.height || img.height;
+        state.plan.opacity = proj.plan.opacity ?? 0.70;
+        document.getElementById('planOpacity').value = Math.round(state.plan.opacity * 100);
+        requestBgRender();
+      };
+      img.src = proj.plan.dataUrl;
+    } else {
+      state.plan.surface = null;
+      requestBgRender();
+    }
+
+    state.selected = null;
+    state.activeChainNodeId = null;
+    recalculateNetwork();
+    updateInspector();
+    requestFgRender();
+    showToast(`Project loaded: ${state.nodes.length} fixtures/nodes, ${state.pipes.length} pipes.`);
+  } catch (err) {
+    console.error('Project open error:', err);
+    showToast('Failed to open project: ' + (err.message || 'Corrupted file'));
+  }
+  e.target.value = '';
+});
+
+/* =========================================================================
+   4. FIXTURE LIST & 3-DOT DIALOG
+   ========================================================================= */
+function setCategory(cat, el) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderFixtureCatalog();
+}
+
+function renderFixtureCatalog() {
+  const container = document.getElementById('fixtureListContainer');
+  if (!container) return;
+  const query = (document.getElementById('fixtureSearch')?.value || '').trim().toLowerCase();
+  document.getElementById('fixtureCountLabel').textContent = fixtureCatalog.length;
+
+  const filtered = fixtureCatalog.filter(f => {
+    if (activeCategory !== 'ALL' && f.category !== activeCategory) return false;
+    if (query && !f.code.toLowerCase().includes(query) && !f.name.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  const frag = document.createDocumentFragment();
+  filtered.forEach(f => {
+    const isSel = f.code === selectedCatalogCode && state.tool === 'fixture';
+    const card = document.createElement('div');
+    card.className = 'fixture-card' + (isSel ? ' selected' : '');
+    card.onclick = () => {
+      selectedCatalogCode = f.code;
+      setTool('fixture');
+    };
+    card.innerHTML = `
+      <div class="fc-top">
+        <span class="fc-badge" style="background:${f.color}">${f.code}</span>
+        <span class="fc-name">${f.name}</span>
+      </div>
+      <div class="fc-meta">
+        <span class="fc-pill dfu">${Number(f.dfu).toFixed(1)} DFU</span>
+        <span class="fc-pill">W: ${fmtSize(f.minWaste)}</span>
+        <span class="fc-pill">V: ${fmtSize(f.minVent)}</span>
+        ${f.isWC ? '<span class="fc-pill wc">WC</span>' : ''}
+      </div>
+    `;
+    frag.appendChild(card);
+  });
+  container.innerHTML = '';
+  container.appendChild(frag);
+}
+
+function openFixtureManagerModal() {
+  document.getElementById('modalFixtureSearch').value = '';
+  renderModalFixtureTable();
+  document.getElementById('fixtureManagerModal').classList.add('open');
+}
+
+function closeFixtureManagerModal() {
+  document.getElementById('fixtureManagerModal').classList.remove('open');
+  renderFixtureCatalog();
+  recalculateNetwork();
+  updateInspector();
+}
+
+function renderModalFixtureTable() {
+  const tbody = document.getElementById('modalFixtureTableBody');
+  const q = (document.getElementById('modalFixtureSearch').value || '').trim().toLowerCase();
+  tbody.innerHTML = '';
+
+  fixtureCatalog.forEach((f, idx) => {
+    if (q && !f.code.toLowerCase().includes(q) && !f.name.toLowerCase().includes(q)) return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="fc-badge" style="background:${f.color}; width:100%;">${f.code}</span></td>
+      <td><input type="text" value="${f.name.replace(/"/g, '&quot;')}" onchange="updateCatalogRow(${idx}, 'name', this.value)"></td>
+      <td>
+        <select onchange="updateCatalogRow(${idx}, 'category', this.value)">
+          <option value="RESTROOM" ${f.category==='RESTROOM'?'selected':''}>Restroom</option>
+          <option value="DRAIN" ${f.category==='DRAIN'?'selected':''}>Drains</option>
+          <option value="SINK" ${f.category==='SINK'?'selected':''}>Sinks</option>
+          <option value="MED" ${f.category==='MED'?'selected':''}>Med/Bath</option>
+        </select>
+      </td>
+      <td><input type="number" step="0.5" min="0" value="${f.dfu}" onchange="updateCatalogRow(${idx}, 'dfu', this.value)"></td>
+      <td>
+        <select onchange="updateCatalogRow(${idx}, 'minWaste', this.value)">
+          ${[1.25, 1.5, 2, 2.5, 3, 4, 6].map(s => `<option value="${s}" ${Number(f.minWaste)===s?'selected':''}>${fmtSize(s)}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select onchange="updateCatalogRow(${idx}, 'minVent', this.value)">
+          ${[1.25, 1.5, 2, 2.5, 3, 4].map(s => `<option value="${s}" ${Number(f.minVent)===s?'selected':''}>${fmtSize(s)}</option>`).join('')}
+        </select>
+      </td>
+      <td style="text-align:center;">
+        <input type="checkbox" style="width:14px;height:14px;" ${f.isWC?'checked':''} onchange="updateCatalogRow(${idx}, 'isWC', this.checked)">
+      </td>
+      <td style="text-align:center;">
+        <button class="btn danger" style="padding:2px 6px;" onclick="deleteCatalogFixture(${idx})">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateCatalogRow(idx, field, val) {
+  const item = fixtureCatalog[idx];
+  if (!item) return;
+  if (field === 'dfu' || field === 'minWaste' || field === 'minVent') {
+    item[field] = Math.max(0, parseFloat(val) || 0);
+  } else if (field === 'isWC') {
+    item.isWC = Boolean(val);
+  } else {
+    item[field] = val;
+  }
+  saveFixtureCatalog();
+  renderFixtureCatalog();
+  recalculateNetwork();
+}
+
+function addNewFixtureFromModal() {
+  const code = (document.getElementById('newFixCode').value || '').trim().toUpperCase();
+  const name = (document.getElementById('newFixName').value || '').trim();
+  const category = document.getElementById('newFixCat').value;
+  const dfu = Math.max(0, parseFloat(document.getElementById('newFixDfu').value) || 0);
+  const minWaste = parseFloat(document.getElementById('newFixWaste').value) || 2.0;
+  const minVent = parseFloat(document.getElementById('newFixVent').value) || 1.5;
+  const isWC = document.getElementById('newFixWC').checked;
+
+  if (!code) { showToast('Please enter a short Code for the new fixture.'); return; }
+  if (fixtureCatalog.some(f => f.code === code)) {
+    showToast(`Fixture code "${code}" already exists.`);
+    return;
+  }
+  fixtureCatalog.unshift({ code, name: name || code, category, dfu, minWaste, minVent, isWC, color: '#3b82f6' });
+  selectedCatalogCode = code;
+  document.getElementById('newFixCode').value = '';
+  document.getElementById('newFixName').value = '';
+  saveFixtureCatalog();
+  renderModalFixtureTable();
+  renderFixtureCatalog();
+  showToast(`Added custom fixture "${code}" to defaults.`);
+}
+
+function deleteCatalogFixture(idx) {
+  fixtureCatalog.splice(idx, 1);
+  saveFixtureCatalog();
+  renderModalFixtureTable();
+  renderFixtureCatalog();
+}
+
+/* =========================================================================
+   5. PDF & IMAGE UNDERLAY LOADER
+   ========================================================================= */
+document.getElementById('planFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  await handlePlanFile(file);
+  e.target.value = '';
+});
+
+const canvasWrap = document.getElementById('canvasWrap');
+canvasWrap.addEventListener('dragover', e => e.preventDefault());
+canvasWrap.addEventListener('drop', async e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) await handlePlanFile(file);
+});
+
+async function handlePlanFile(file) {
+  showToast(`Loading "${file.name}"...`);
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+  if (isPdf) {
+    try {
+      const arrayBuf = await file.arrayBuffer();
+      const uint8 = new Uint8Array(arrayBuf);
+      const loadingTask = pdfjsLib.getDocument({ data: uint8, isEvalSupported: false });
+      const pdfDoc = await loadingTask.promise;
+      state.plan.pdfDoc = pdfDoc;
+      state.plan.pageNum = 1;
+      state.plan.totalPages = pdfDoc.numPages;
+
+      document.getElementById('pdfPageControls').style.display = pdfDoc.numPages > 1 ? 'inline-flex' : 'none';
+      await renderPdfPageToBuffer(1, true);
+    } catch (err) {
+      console.error('PDF load error:', err);
+      showToast('PDF Error: ' + (err.message || 'Check file format'));
+    }
+  } else {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      state.plan.pdfDoc = null;
+      document.getElementById('pdfPageControls').style.display = 'none';
+      state.plan.surface = img;
+      state.plan.width = img.width;
+      state.plan.height = img.height;
+      fitView();
+      showToast(`Loaded plan (${img.width}×${img.height}px).`);
+    };
+    img.src = url;
+  }
+}
+
+async function renderPdfPageToBuffer(pageNum, shouldFit = false) {
+  if (!state.plan.pdfDoc) return;
+  showToast(`Rendering page ${pageNum}/${state.plan.totalPages}...`);
+  const page = await state.plan.pdfDoc.getPage(pageNum);
+  const baseVp = page.getViewport({ scale: 1.0 });
+
+  const maxSide = Math.max(baseVp.width, baseVp.height);
+  const targetScale = Math.min(2.0, Math.max(1.0, 2000 / maxSide));
+  const viewport = page.getViewport({ scale: targetScale });
+
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = Math.round(viewport.width);
+  offCanvas.height = Math.round(viewport.height);
+  const offCtx = offCanvas.getContext('2d', { alpha: false });
+
+  offCtx.fillStyle = '#ffffff';
+  offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+
+  await page.render({ canvasContext: offCtx, viewport }).promise;
+
+  state.plan.surface = offCanvas;
+  state.plan.width = offCanvas.width;
+  state.plan.height = offCanvas.height;
+  document.getElementById('pdfPageLabel').textContent = `${pageNum}/${state.plan.totalPages}`;
+
+  if (shouldFit) fitView();
+  else requestBgRender();
+  showToast(`PDF Page ${pageNum}/${state.plan.totalPages} loaded.`);
+}
+
+async function changePdfPage(delta) {
+  if (!state.plan.pdfDoc) return;
+  const next = state.plan.pageNum + delta;
+  if (next < 1 || next > state.plan.totalPages) return;
+  state.plan.pageNum = next;
+  await renderPdfPageToBuffer(next, false);
+}
+
+function updatePlanOpacity(val) {
+  state.plan.opacity = Number(val) / 100;
+  requestBgRender();
+}
+
+function updateSymbolScale(val) {
+  state.symbolScale = parseFloat(val) || 1.2;
+  requestFgRender();
+}
+
+/* =========================================================================
+   6. SIZING ENGINE & FLIP FLOW SUPPORT
+   ========================================================================= */
+function getFixtureSpec(node) {
+  const cat = fixtureCatalog.find(f => f.code === node.fixtureCode) || DEFAULT_UPC_FIXTURES[0];
+  return {
+    code: cat.code,
+    name: cat.name,
+    color: cat.color || '#3b82f6',
+    dfu: node.dfuOverride !== undefined && node.dfuOverride !== null ? Number(node.dfuOverride) : Number(cat.dfu),
+    minWaste: node.minWasteOverride ? Number(node.minWasteOverride) : Number(cat.minWaste),
+    minVent: node.minVentOverride ? Number(node.minVentOverride) : Number(cat.minVent),
+    isWC: node.isWCOverride !== undefined ? Boolean(node.isWCOverride) : Boolean(cat.isWC)
+  };
+}
+
+function applyInstanceAsDefault(nodeId) {
+  const n = state.nodes.find(x => x.id === nodeId);
+  if (!n || n.type !== 'fixture') return;
+
+  const spec = getFixtureSpec(n);
+  let cat = fixtureCatalog.find(f => f.code === n.fixtureCode);
+  if (!cat) {
+    cat = { code: n.fixtureCode, name: n.fixtureCode, category: 'DRAIN', dfu: spec.dfu, minWaste: spec.minWaste, minVent: spec.minVent, isWC: spec.isWC, color: '#3b82f6' };
+    fixtureCatalog.unshift(cat);
+  } else {
+    cat.dfu = spec.dfu;
+    cat.minWaste = spec.minWaste;
+    cat.minVent = spec.minVent;
+  }
+
+  // Clear specific overrides so it gracefully adopts the newly saved default
+  delete n.dfuOverride;
+  delete n.minWasteOverride;
+  delete n.minVentOverride;
+
+  saveFixtureCatalog();
+  renderFixtureCatalog();
+  recalculateNetwork();
+  updateInspector();
+  showToast(`⭐ Saved ${cat.code} (${cat.dfu} DFU, ${fmtSize(cat.minWaste)} waste) as new default!`);
+}
+
+function sizeWastePipeByCode(dfu, wcCount, minTrapSize, slope, codeMode) {
+  let reqSize = Math.max(1.25, minTrapSize || 1.25);
+  const warnings = [];
+  if (wcCount > 0 && reqSize < 3.0) reqSize = 3.0;
+
+  if (codeMode === 'UPC2024') {
+    const upcLimits = [
+      { size: 1.25, maxDfu: 1 },
+      { size: 1.5,  maxDfu: 2 },
+      { size: 2.0,  maxDfu: 8 },
+      { size: 2.5,  maxDfu: 14 },
+      { size: 3.0,  maxDfu: 35 },
+      { size: 4.0,  maxDfu: slope < 0.2 ? 180 : 216 },
+      { size: 6.0,  maxDfu: slope < 0.2 ? 700 : 840 },
+      { size: 8.0,  maxDfu: slope < 0.2 ? 1600 : 1920 }
+    ];
+    if (wcCount > 3 && reqSize <= 3.0) {
+      reqSize = 4.0;
+      warnings.push(`${wcCount} WCs > UPC 3" max (3) → 4"`);
+    }
+    for (const row of upcLimits) {
+      if (row.size >= reqSize && dfu <= row.maxDfu) return { size: row.size, warnings };
+    }
+    return { size: 8.0, warnings };
+  } else {
+    const ipcLimits = [
+      { size: 1.25, maxDfu: 1 },
+      { size: 1.5,  maxDfu: 3 },
+      { size: 2.0,  maxDfu: 6 },
+      { size: 2.5,  maxDfu: 12 },
+      { size: 3.0,  maxDfu: 20 },
+      { size: 4.0,  maxDfu: 160 },
+      { size: 6.0,  maxDfu: 620 },
+      { size: 8.0,  maxDfu: 1400 }
+    ];
+    if (wcCount > 2 && reqSize <= 3.0) {
+      reqSize = 4.0;
+      warnings.push(`${wcCount} WCs > IPC 3" max (2) → 4"`);
+    }
+    for (const row of ipcLimits) {
+      if (row.size >= reqSize && dfu <= row.maxDfu) return { size: row.size, warnings };
+    }
+    return { size: 8.0, warnings };
+  }
+}
+
+function sizeVentPipeByCode(dfu, minFixtureVent, largestConnectedWaste, devLenFt) {
+  let reqSize = Math.max(1.25, minFixtureVent || 1.25, (largestConnectedWaste || 1.25) / 2);
+  const warnings = [];
+  const upcVentTable = [
+    { size: 1.25, maxDfu: 1,   maxLen: 45 },
+    { size: 1.5,  maxDfu: 8,   maxLen: 60 },
+    { size: 2.0,  maxDfu: 24,  maxLen: 120 },
+    { size: 2.5,  maxDfu: 48,  maxLen: 180 },
+    { size: 3.0,  maxDfu: 84,  maxLen: 212 },
+    { size: 4.0,  maxDfu: 256, maxLen: 300 },
+    { size: 6.0,  maxDfu: 1380,maxLen: 510 }
+  ];
+  for (const row of upcVentTable) {
+    if (row.size >= reqSize && dfu <= row.maxDfu) {
+      if (devLenFt > row.maxLen) {
+        warnings.push(`Len (${devLenFt.toFixed(0)}') > max (${row.maxLen}')`);
+        continue;
+      }
+      return { size: row.size, warnings };
+    }
+  }
+  return { size: 6.0, warnings };
+}
+
+function togglePipeFlow(pipeId) {
+  const p = state.pipes.find(x => x.id === pipeId);
+  if (!p) return;
+  const temp = p.n1;
+  p.n1 = p.n2;
+  p.n2 = temp;
+  p.manualFlowReversed = !p.manualFlowReversed;
+  recalculateNetwork();
+  updateInspector();
+  requestFgRender();
+  showToast(`Reversed flow direction on Pipe #P-${p.id}`);
+}
+
+function recalculateNetwork() {
+  const codeMode = document.getElementById('codeMode').value;
+  const defSlope = parseFloat(document.getElementById('defaultSlope').value) || 0.25;
+  const nodeMap = new Map();
+  state.nodes.forEach(n => nodeMap.set(n.id, n));
+
+  state.pipes.forEach(p => {
+    const n1 = nodeMap.get(p.n1);
+    const n2 = nodeMap.get(p.n2);
+    const distPx = (n1 && n2) ? Math.hypot(n2.x - n1.x, n2.y - n1.y) : 0;
+    p.calc = {
+      dfu: 0, wcCount: 0, minReq: 1.25,
+      size: p.manualMinSize || 1.5,
+      lengthFt: distPx / (state.pxPerFoot || 10),
+      flowDir: 1, warnings: [], fixtureSet: new Set()
+    };
+  });
+
+  // 1. Waste Graph
+  const wastePipes = state.pipes.filter(p => p.system !== 'vent');
+  const wasteAdj = new Map();
+  state.nodes.forEach(n => wasteAdj.set(n.id, []));
+  wastePipes.forEach(p => {
+    if (wasteAdj.has(p.n1) && wasteAdj.has(p.n2)) {
+      wasteAdj.get(p.n1).push({ pipe: p, neighbor: p.n2 });
+      wasteAdj.get(p.n2).push({ pipe: p, neighbor: p.n1 });
+    }
+  });
+
+  const visitedWaste = new Set();
+  const wasteParentNode = new Map();
+  const wasteParentPipe = new Map();
+  const queue = [];
+
+  state.nodes.filter(n => n.type === 'stack').forEach(s => {
+    visitedWaste.add(s.id);
+    queue.push(s.id);
+  });
+
+  while (queue.length > 0) {
+    const curr = queue.shift();
+    for (const edge of (wasteAdj.get(curr) || [])) {
+      if (!visitedWaste.has(edge.neighbor)) {
+        visitedWaste.add(edge.neighbor);
+        wasteParentNode.set(edge.neighbor, curr);
+        wasteParentPipe.set(edge.neighbor, edge.pipe);
+        queue.push(edge.neighbor);
+      }
+    }
+  }
+
+  state.nodes.forEach(n => {
+    if (!visitedWaste.has(n.id) && (wasteAdj.get(n.id) || []).length > 0) {
+      const comp = [];
+      const q2 = [n.id];
+      const seen2 = new Set([n.id]);
+      while (q2.length > 0) {
+        const u = q2.shift();
+        comp.push(nodeMap.get(u));
+        for (const e of (wasteAdj.get(u) || [])) {
+          if (!seen2.has(e.neighbor)) { seen2.add(e.neighbor); q2.push(e.neighbor); }
+        }
+      }
+      const root = comp.reverse().find(x => x.type !== 'fixture') || comp[0];
+      visitedWaste.add(root.id);
+      const q3 = [root.id];
+      while (q3.length > 0) {
+        const curr = q3.shift();
+        for (const edge of (wasteAdj.get(curr) || [])) {
+          if (!visitedWaste.has(edge.neighbor)) {
+            visitedWaste.add(edge.neighbor);
+            wasteParentNode.set(edge.neighbor, curr);
+            wasteParentPipe.set(edge.neighbor, edge.pipe);
+            q3.push(edge.neighbor);
+          }
+        }
+      }
+    }
+  });
+
+  const nodeUpstreamFixtures = new Map();
+  state.nodes.forEach(n => nodeUpstreamFixtures.set(n.id, new Set()));
+
+  state.nodes.filter(n => n.type === 'fixture').forEach(fixNode => {
+    let curr = fixNode.id;
+    const safety = new Set();
+    while (curr && !safety.has(curr)) {
+      safety.add(curr);
+      nodeUpstreamFixtures.get(curr).add(fixNode.id);
+      const pPipe = wasteParentPipe.get(curr);
+      const nextNode = wasteParentNode.get(curr);
+      if (pPipe && nextNode) {
+        pPipe.calc.fixtureSet.add(fixNode.id);
+        pPipe.calc.flowDir = (pPipe.n1 === curr && pPipe.n2 === nextNode) ? 1 : -1;
+      }
+      curr = nextNode;
+    }
+  });
+
+  wastePipes.forEach(p => {
+    let sumDfu = 0, wcCount = 0, maxMinWaste = 1.25;
+    p.calc.fixtureSet.forEach(fid => {
+      const fn = nodeMap.get(fid);
+      if (fn) {
+        const spec = getFixtureSpec(fn);
+        sumDfu += spec.dfu;
+        if (spec.isWC) wcCount += 1;
+        if (spec.minWaste > maxMinWaste) maxMinWaste = spec.minWaste;
+      }
+    });
+    p.calc.dfu = sumDfu;
+    p.calc.wcCount = wcCount;
+    p.calc.minReq = Math.max(maxMinWaste, p.manualMinSize || 0);
+    const sized = sizeWastePipeByCode(sumDfu, wcCount, p.calc.minReq, p.slope || defSlope, codeMode);
+    p.calc.size = Math.max(sized.size, p.manualMinSize || 0);
+    p.calc.warnings = sized.warnings;
+  });
+
+  // 2. Vent Graph
+  const ventPipes = state.pipes.filter(p => p.system === 'vent');
+  const ventAdj = new Map();
+  state.nodes.forEach(n => ventAdj.set(n.id, []));
+  ventPipes.forEach(p => {
+    if (ventAdj.has(p.n1) && ventAdj.has(p.n2)) {
+      ventAdj.get(p.n1).push({ pipe: p, neighbor: p.n2 });
+      ventAdj.get(p.n2).push({ pipe: p, neighbor: p.n1 });
+    }
+  });
+
+  const visitedVent = new Set();
+  const ventParentNode = new Map();
+  const ventParentPipe = new Map();
+  const vQueue = [];
+  state.nodes.filter(n => n.type === 'vtr').forEach(v => {
+    visitedVent.add(v.id);
+    vQueue.push(v.id);
+  });
+
+  while (vQueue.length > 0) {
+    const curr = vQueue.shift();
+    for (const edge of (ventAdj.get(curr) || [])) {
+      if (!visitedVent.has(edge.neighbor)) {
+        visitedVent.add(edge.neighbor);
+        ventParentNode.set(edge.neighbor, curr);
+        ventParentPipe.set(edge.neighbor, edge.pipe);
+        vQueue.push(edge.neighbor);
+      }
+    }
+  }
+
+  state.nodes.forEach(n => {
+    if (!visitedVent.has(n.id) && (ventAdj.get(n.id) || []).length > 0) {
+      const comp = [];
+      const q = [n.id];
+      const seen = new Set([n.id]);
+      while (q.length > 0) {
+        const u = q.shift();
+        comp.push(nodeMap.get(u));
+        for (const e of (ventAdj.get(u) || [])) {
+          if (!seen.has(e.neighbor)) { seen.add(e.neighbor); q.push(e.neighbor); }
+        }
+      }
+      const root = comp.reverse().find(x => x.type !== 'fixture') || comp[0];
+      visitedVent.add(root.id);
+      const q2 = [root.id];
+      while (q2.length > 0) {
+        const curr = q2.shift();
+        for (const edge of (ventAdj.get(curr) || [])) {
+          if (!visitedVent.has(edge.neighbor)) {
+            visitedVent.add(edge.neighbor);
+            ventParentNode.set(edge.neighbor, curr);
+            ventParentPipe.set(edge.neighbor, edge.pipe);
+            q2.push(edge.neighbor);
+          }
+        }
+      }
+    }
+  });
+
+  state.nodes.forEach(n => {
+    if ((ventAdj.get(n.id) || []).length === 0) return;
+    const served = new Set();
+    if (n.type === 'fixture') served.add(n.id);
+    const up = nodeUpstreamFixtures.get(n.id);
+    if (up) up.forEach(fid => served.add(fid));
+    if (served.size === 0) return;
+
+    let curr = n.id;
+    const safety = new Set();
+    while (curr && !safety.has(curr)) {
+      safety.add(curr);
+      const vPipe = ventParentPipe.get(curr);
+      const nextNode = ventParentNode.get(curr);
+      if (vPipe && nextNode) {
+        served.forEach(fid => vPipe.calc.fixtureSet.add(fid));
+        vPipe.calc.flowDir = (vPipe.n1 === curr && vPipe.n2 === nextNode) ? 1 : -1;
+      }
+      curr = nextNode;
+    }
+  });
+
+  ventPipes.forEach(p => {
+    let sumDfu = 0, maxMinVent = 1.25, largestWaste = 1.25;
+    p.calc.fixtureSet.forEach(fid => {
+      const fn = nodeMap.get(fid);
+      if (fn) {
+        const spec = getFixtureSpec(fn);
+        sumDfu += spec.dfu;
+        if (spec.minVent > maxMinVent) maxMinVent = spec.minVent;
+        if (spec.minWaste > largestWaste) largestWaste = spec.minWaste;
+      }
+    });
+    p.calc.dfu = sumDfu;
+    p.calc.minReq = Math.max(maxMinVent, largestWaste / 2, p.manualMinSize || 0);
+    const sized = sizeVentPipeByCode(sumDfu, maxMinVent, largestWaste, p.calc.lengthFt);
+    p.calc.size = Math.max(sized.size, p.manualMinSize || 0);
+    p.calc.warnings = sized.warnings;
+  });
+
+  renderScheduleTable();
+  requestFgRender();
+}
+
+/* =========================================================================
+   7. DUAL CANVAS ENGINE & AUTOCAD ZOOM/PAN NAVIGATION
+   ========================================================================= */
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+const fgCanvas = document.getElementById('fgCanvas');
+const fgCtx = fgCanvas.getContext('2d');
+
+let isPanning = false;
+let isDraggingNode = false;
+let draggedNode = null;
+let spacePressed = false;
+let lastMouseScreen = { x: 0, y: 0 };
+let lastMmbClickTime = 0;
+let mouseWorld = { x: 0, y: 0 };
+let snapTarget = null;
+
+function resizeCanvases() {
+  const rect = canvasWrap.getBoundingClientRect();
+  const w = Math.max(300, Math.floor(rect.width));
+  const h = Math.max(250, Math.floor(rect.height));
+  if (bgCanvas.width !== w || bgCanvas.height !== h) {
+    bgCanvas.width = w;
+    bgCanvas.height = h;
+    fgCanvas.width = w;
+    fgCanvas.height = h;
+    requestBgRender();
+    requestFgRender();
+  }
+}
+
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => resizeCanvases()).observe(canvasWrap);
+}
+window.addEventListener('resize', resizeCanvases);
+
+function screenToWorld(sx, sy) {
+  return {
+    x: (sx - state.cam.x) / state.cam.zoom,
+    y: (sy - state.cam.y) / state.cam.zoom
+  };
+}
+
+function fitView() {
+  resizeCanvases();
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+  if (state.plan.surface && state.plan.width > 0) {
+    minX = Math.min(minX, 0);
+    minY = Math.min(minY, 0);
+    maxX = Math.max(maxX, state.plan.width);
+    maxY = Math.max(maxY, state.plan.height);
+  }
+
+  if (state.nodes.length > 0) {
+    state.nodes.forEach(n => {
+      minX = Math.min(minX, n.x - 30);
+      minY = Math.min(minY, n.y - 30);
+      maxX = Math.max(maxX, n.x + 30);
+      maxY = Math.max(maxY, n.y + 30);
+    });
+  }
+
+  if (!isFinite(minX)) {
+    minX = 0; minY = 0; maxX = 1000; maxY = 700;
+  }
+
+  const bbW = Math.max(50, maxX - minX);
+  const bbH = Math.max(50, maxY - minY);
+  const pad = 45;
+
+  const zx = (fgCanvas.width - pad * 2) / bbW;
+  const zy = (fgCanvas.height - pad * 2) / bbH;
+  state.cam.zoom = Math.max(0.06, Math.min(2.5, Math.min(zx, zy)));
+  state.cam.x = (fgCanvas.width - bbW * state.cam.zoom) / 2 - minX * state.cam.zoom;
+  state.cam.y = (fgCanvas.height - bbH * state.cam.zoom) / 2 - minY * state.cam.zoom;
+
+  requestBgRender();
+  requestFgRender();
+  showToast('Zoom Extents (Fit All)');
+}
+
+let bgQueued = false;
+function requestBgRender() {
+  if (!bgQueued) {
+    bgQueued = true;
+    requestAnimationFrame(renderBgCanvas);
+  }
+}
+
+function renderBgCanvas() {
+  bgQueued = false;
+  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  bgCtx.save();
+  bgCtx.translate(state.cam.x, state.cam.y);
+  bgCtx.scale(state.cam.zoom, state.cam.zoom);
+
+  if (state.plan.surface) {
+    bgCtx.save();
+    bgCtx.globalAlpha = state.plan.opacity;
+    bgCtx.drawImage(state.plan.surface, 0, 0);
+    bgCtx.restore();
+  } else {
+    const step = 50;
+    const tl = screenToWorld(0, 0);
+    const br = screenToWorld(bgCanvas.width, bgCanvas.height);
+    const startX = Math.floor(tl.x / step) * step;
+    const startY = Math.floor(tl.y / step) * step;
+    if ((br.x - startX) / step < 120) {
+      bgCtx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+      bgCtx.lineWidth = 1 / state.cam.zoom;
+      bgCtx.beginPath();
+      for (let x = startX; x <= br.x; x += step) { bgCtx.moveTo(x, tl.y); bgCtx.lineTo(x, br.y); }
+      for (let y = startY; y <= br.y; y += step) { bgCtx.moveTo(tl.x, y); bgCtx.lineTo(br.x, y); }
+      bgCtx.stroke();
+    }
+  }
+  bgCtx.restore();
+}
+
+let fgQueued = false;
+function requestFgRender() {
+  if (!fgQueued) {
+    fgQueued = true;
+    requestAnimationFrame(renderFgCanvas);
+  }
+}
+
+function renderFgCanvas() {
+  fgQueued = false;
+  fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
+
+  fgCtx.save();
+  fgCtx.translate(state.cam.x, state.cam.y);
+  fgCtx.scale(state.cam.zoom, state.cam.zoom);
+
+  const invZ = (1 / state.cam.zoom) * state.symbolScale;
+  const nodeMap = new Map();
+  state.nodes.forEach(n => nodeMap.set(n.id, n));
+
+  // 1. Draw Pipes
+  state.pipes.forEach(p => {
+    if (!state.layers[p.system]) return;
+    const n1 = nodeMap.get(p.n1);
+    const n2 = nodeMap.get(p.n2);
+    if (!n1 || !n2) return;
+
+    const isSel = state.selected && state.selected.kind === 'pipe' && state.selected.id === p.id;
+    const sz = p.calc?.size || 2.0;
+    const baseColor = p.system === 'vent' ? '#fb923c' : (SIZE_COLORS[sz] || '#38bdf8');
+
+    fgCtx.save();
+    fgCtx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+    fgCtx.lineWidth = (isSel ? 7.5 : 5.5) * invZ;
+    fgCtx.lineCap = 'round';
+    fgCtx.beginPath();
+    fgCtx.moveTo(n1.x, n1.y);
+    fgCtx.lineTo(n2.x, n2.y);
+    fgCtx.stroke();
+
+    fgCtx.strokeStyle = isSel ? '#ffffff' : baseColor;
+    fgCtx.lineWidth = (isSel ? 5 : 3.5) * invZ;
+    if (p.system === 'vent') {
+      fgCtx.setLineDash([7 * invZ, 5 * invZ]);
+    }
+    fgCtx.beginPath();
+    fgCtx.moveTo(n1.x, n1.y);
+    fgCtx.lineTo(n2.x, n2.y);
+    fgCtx.stroke();
+    fgCtx.restore();
+
+    // Flow Direction Arrow
+    const mx = (n1.x + n2.x) / 2;
+    const my = (n1.y + n2.y) / 2;
+    const hasFlow = (p.calc?.dfu || 0) > 0 || (p.calc?.fixtureSet && p.calc.fixtureSet.size > 0);
+
+    if (hasFlow) {
+      const dir = p.calc?.flowDir || 1;
+      const angle = dir === 1 ? Math.atan2(n2.y - n1.y, n2.x - n1.x) : Math.atan2(n1.y - n2.y, n1.x - n2.x);
+      const aLen = 6 * invZ;
+
+      fgCtx.save();
+      fgCtx.translate(mx, my);
+      fgCtx.rotate(angle);
+      fgCtx.strokeStyle = '#ffffff';
+      fgCtx.lineWidth = 2 * invZ;
+      fgCtx.beginPath();
+      fgCtx.moveTo(-aLen, -aLen * 0.7);
+      fgCtx.lineTo(aLen * 0.5, 0);
+      fgCtx.lineTo(-aLen, aLen * 0.7);
+      fgCtx.stroke();
+      fgCtx.restore();
+    }
+
+    if (state.layers.labels) {
+      const dfuTxt = (p.calc?.dfu ?? 0).toFixed(1);
+      const sysPre = p.system === 'vent' ? 'V ' : '';
+      drawFastTag(mx, my - 13 * invZ, `${sysPre}Ø ${fmtSize(sz)} (${dfuTxt} DFU)`, baseColor, isSel, invZ);
+    }
+  });
+
+  // 2. Active Rubberband Line
+  if ((state.tool === 'pipe' || state.tool === 'vent') && state.activeChainNodeId) {
+    const startNode = nodeMap.get(state.activeChainNodeId);
+    if (startNode) {
+      fgCtx.save();
+      fgCtx.strokeStyle = state.tool === 'vent' ? '#fb923c' : '#38bdf8';
+      fgCtx.lineWidth = 3 * invZ;
+      fgCtx.setLineDash([6 * invZ, 4 * invZ]);
+      fgCtx.beginPath();
+      fgCtx.moveTo(startNode.x, startNode.y);
+      fgCtx.lineTo(mouseWorld.x, mouseWorld.y);
+      fgCtx.stroke();
+      fgCtx.restore();
+    }
+  }
+  if (state.tool === 'calibrate' && state.calibratePt1) {
+    fgCtx.save();
+    fgCtx.strokeStyle = '#facc15';
+    fgCtx.lineWidth = 3 * invZ;
+    fgCtx.beginPath();
+    fgCtx.moveTo(state.calibratePt1.x, state.calibratePt1.y);
+    fgCtx.lineTo(mouseWorld.x, mouseWorld.y);
+    fgCtx.stroke();
+    fgCtx.restore();
+  }
+
+  // 3. Nodes
+  state.nodes.forEach(n => {
+    const isSel = state.selected && state.selected.kind === 'node' && state.selected.id === n.id;
+    drawNodeSymbol(n, isSel, invZ, 1.0);
+  });
+
+  // 4. Ghost Placement Preview
+  if (state.tool === 'fixture') {
+    const previewNode = { x: mouseWorld.x, y: mouseWorld.y, type: 'fixture', fixtureCode: selectedCatalogCode, tag: selectedCatalogCode };
+    drawNodeSymbol(previewNode, false, invZ, 0.72);
+  } else if (state.tool === 'stack' || state.tool === 'vtr') {
+    const previewNode = { x: mouseWorld.x, y: mouseWorld.y, type: state.tool };
+    drawNodeSymbol(previewNode, false, invZ, 0.72);
+  }
+
+  // 5. Magnetic Snap Indicator
+  if (snapTarget) {
+    fgCtx.save();
+    const color = snapTarget.type === 'node' ? '#22c55e' : '#facc15';
+    fgCtx.strokeStyle = color;
+    fgCtx.lineWidth = 2.5 * invZ;
+    fgCtx.beginPath();
+    fgCtx.arc(snapTarget.x, snapTarget.y, 11 * invZ, 0, Math.PI * 2);
+    fgCtx.stroke();
+    const msg = snapTarget.type === 'node' ? 'Snap Node' : 'Tee / Split Pipe';
+    drawFastTag(snapTarget.x, snapTarget.y + 18 * invZ, msg, color, false, invZ);
+    fgCtx.restore();
+  }
+
+  fgCtx.restore();
+}
+
+function drawNodeSymbol(n, isSel, invZ, alpha) {
+  fgCtx.save();
+  fgCtx.globalAlpha = alpha;
+
+  if (n.type === 'junction') {
+    fgCtx.fillStyle = isSel ? '#ffffff' : '#0f172a';
+    fgCtx.strokeStyle = '#38bdf8';
+    fgCtx.lineWidth = 2 * invZ;
+    fgCtx.beginPath();
+    fgCtx.arc(n.x, n.y, (isSel ? 5.5 : 4) * invZ, 0, Math.PI * 2);
+    fgCtx.fill();
+    fgCtx.stroke();
+  } else if (n.type === 'stack') {
+    const r = 14 * invZ;
+    fgCtx.fillStyle = '#581c87';
+    fgCtx.strokeStyle = isSel ? '#ffffff' : '#e879f9';
+    fgCtx.lineWidth = 3 * invZ;
+    fgCtx.beginPath();
+    fgCtx.arc(n.x, n.y, r, 0, Math.PI * 2);
+    fgCtx.fill();
+    fgCtx.stroke();
+    fgCtx.fillStyle = '#ffffff';
+    fgCtx.font = `bold ${9.5 * invZ}px sans-serif`;
+    fgCtx.textAlign = 'center';
+    fgCtx.textBaseline = 'middle';
+    fgCtx.fillText('STACK', n.x, n.y);
+  } else if (n.type === 'vtr') {
+    const r = 14 * invZ;
+    fgCtx.fillStyle = '#7c2d12';
+    fgCtx.strokeStyle = isSel ? '#ffffff' : '#fb923c';
+    fgCtx.lineWidth = 3 * invZ;
+    fgCtx.beginPath();
+    fgCtx.moveTo(n.x, n.y - r);
+    fgCtx.lineTo(n.x + r, n.y + r * 0.85);
+    fgCtx.lineTo(n.x - r, n.y + r * 0.85);
+    fgCtx.closePath();
+    fgCtx.fill();
+    fgCtx.stroke();
+    fgCtx.fillStyle = '#ffffff';
+    fgCtx.font = `bold ${9.5 * invZ}px sans-serif`;
+    fgCtx.textAlign = 'center';
+    fgCtx.textBaseline = 'middle';
+    fgCtx.fillText('VTR', n.x, n.y + r * 0.25);
+  } else if (n.type === 'fixture') {
+    const spec = getFixtureSpec(n);
+    const r = 13 * invZ;
+    fgCtx.fillStyle = '#0f172a';
+    fgCtx.strokeStyle = isSel ? '#ffffff' : spec.color;
+    fgCtx.lineWidth = (isSel ? 4 : 3) * invZ;
+    fgCtx.beginPath();
+    fgCtx.arc(n.x, n.y, r, 0, Math.PI * 2);
+    fgCtx.fill();
+    fgCtx.stroke();
+
+    fgCtx.fillStyle = '#ffffff';
+    fgCtx.font = `bold ${9 * invZ}px sans-serif`;
+    fgCtx.textAlign = 'center';
+    fgCtx.textBaseline = 'middle';
+    fgCtx.fillText(n.tag || spec.code, n.x, n.y);
+
+    if (state.layers.labels && alpha === 1.0) {
+      drawFastTag(n.x, n.y + r + 9 * invZ, `${spec.dfu.toFixed(1)} DFU`, spec.color, false, invZ * 0.88);
+    }
+  }
+  fgCtx.restore();
+}
+
+function drawFastTag(wx, wy, text, borderColor, highlight, invZ) {
+  fgCtx.save();
+  const fontSize = 10 * invZ;
+  fgCtx.font = `bold ${fontSize}px sans-serif`;
+  const tw = fgCtx.measureText(text).width;
+  const bw = tw + 8 * invZ;
+  const bh = fontSize + 5 * invZ;
+
+  fgCtx.fillStyle = highlight ? '#1d4ed8' : 'rgba(15, 23, 42, 0.92)';
+  fgCtx.strokeStyle = highlight ? '#ffffff' : borderColor;
+  fgCtx.lineWidth = 1.3 * invZ;
+  fgCtx.fillRect(wx - bw / 2, wy - bh / 2, bw, bh);
+  fgCtx.strokeRect(wx - bw / 2, wy - bh / 2, bw, bh);
+
+  fgCtx.fillStyle = '#ffffff';
+  fgCtx.textAlign = 'center';
+  fgCtx.textBaseline = 'middle';
+  fgCtx.fillText(text, wx, wy);
+  fgCtx.restore();
+}
+
+/* =========================================================================
+   8. INTERACTION & AUTOCAD CONTROLS
+   ========================================================================= */
+function findSnapTarget(wx, wy) {
+  const snapRad = (15 / state.cam.zoom) * state.symbolScale;
+  let bestNode = null, bestNodeDist = snapRad;
+  for (const n of state.nodes) {
+    const d = Math.hypot(n.x - wx, n.y - wy);
+    if (d < bestNodeDist) { bestNodeDist = d; bestNode = n; }
+  }
+  if (bestNode) return { type: 'node', node: bestNode, x: bestNode.x, y: bestNode.y };
+
+  const nodeMap = new Map();
+  state.nodes.forEach(n => nodeMap.set(n.id, n));
+  let bestPipe = null, bestPt = null, bestPipeDist = snapRad;
+
+  for (const p of state.pipes) {
+    if (!state.layers[p.system]) continue;
+    const a = nodeMap.get(p.n1), b = nodeMap.get(p.n2);
+    if (!a || !b) continue;
+    const proj = projectPointToSegment(wx, wy, a.x, a.y, b.x, b.y);
+    if (proj.dist < bestPipeDist) {
+      bestPipeDist = proj.dist;
+      bestPipe = p;
+      bestPt = { x: proj.x, y: proj.y };
+    }
+  }
+  if (bestPipe) return { type: 'pipe', pipe: bestPipe, x: bestPt.x, y: bestPt.y };
+  return null;
+}
+
+function projectPointToSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return { x: x1, y: y1, dist: Math.hypot(px - x1, py - y1) };
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0.05, Math.min(0.95, t));
+  const cx = x1 + t * dx, cy = y1 + t * dy;
+  return { x: cx, y: cy, dist: Math.hypot(px - cx, py - cy) };
+}
+
+function splitPipeAtPoint(pipe, x, y) {
+  const jNode = { id: state.nextId++, x, y, type: 'junction' };
+  state.nodes.push(jNode);
+  const origN2 = pipe.n2;
+  pipe.n2 = jNode.id;
+  state.pipes.push({
+    id: state.nextId++, n1: jNode.id, n2: origN2,
+    system: pipe.system, slope: pipe.slope,
+    manualMinSize: pipe.manualMinSize || 0, calc: {}
+  });
+  return jNode;
+}
+
+fgCanvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = fgCanvas.getBoundingClientRect();
+  const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+
+  const zoomFactor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+  const newZoom = Math.max(0.05, Math.min(20, state.cam.zoom * zoomFactor));
+
+  const wx = (sx - state.cam.x) / state.cam.zoom;
+  const wy = (sy - state.cam.y) / state.cam.zoom;
+
+  state.cam.zoom = newZoom;
+  state.cam.x = sx - wx * newZoom;
+  state.cam.y = sy - wy * newZoom;
+
+  lastMouseScreen = { x: sx, y: sy };
+
+  requestBgRender();
+  requestFgRender();
+}, { passive: false });
+
+fgCanvas.addEventListener('mousedown', e => {
+  const rect = fgCanvas.getBoundingClientRect();
+  const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+
+  if (e.button === 1 || (e.button === 0 && spacePressed)) {
+    if (e.button === 1) {
+      const now = performance.now();
+      if (now - lastMmbClickTime < 350) {
+        fitView();
+        isPanning = false;
+        lastMmbClickTime = 0;
+        e.preventDefault();
+        return;
+      }
+      lastMmbClickTime = now;
+    }
+
+    isPanning = true;
+    lastMouseScreen = { x: sx, y: sy };
+    fgCanvas.style.cursor = 'grabbing';
+    e.preventDefault();
+    return;
+  }
+
+  if (e.button === 2) {
+    state.activeChainNodeId = null;
+    state.calibratePt1 = null;
+    requestFgRender();
+    return;
+  }
+
+  let pt = screenToWorld(sx, sy);
+  if ((state.ortho || e.shiftKey) && state.activeChainNodeId) {
+    const startNode = state.nodes.find(n => n.id === state.activeChainNodeId);
+    if (startNode && !snapTarget) pt = applyOrthoSnap(startNode.x, startNode.y, pt.x, pt.y);
+  }
+
+  if (state.tool === 'calibrate') {
+    if (!state.calibratePt1) {
+      state.calibratePt1 = pt;
+      showToast('Scale Calibration: Click the second point on the plan.');
+    } else {
+      const distPx = Math.hypot(pt.x - state.calibratePt1.x, pt.y - state.calibratePt1.y);
+      state.calibratePt1 = null;
+      if (distPx > 2) {
+        state.pendingCalibrateDistPx = distPx;
+        document.getElementById('scaleModal').classList.add('open');
+        document.getElementById('scaleFeetInput').focus();
+      }
+    }
+    requestFgRender();
+    return;
+  }
+
+  if (state.tool === 'select') {
+    if (snapTarget && snapTarget.type === 'node') {
+      state.selected = { kind: 'node', id: snapTarget.node.id };
+      isDraggingNode = true;
+      draggedNode = snapTarget.node;
+    } else if (snapTarget && snapTarget.type === 'pipe') {
+      state.selected = { kind: 'pipe', id: snapTarget.pipe.id };
+    } else {
+      state.selected = null;
+    }
+    updateInspector();
+    renderScheduleTable();
+    requestFgRender();
+    return;
+  }
+
+  if (state.tool === 'fixture') {
+    const countSame = state.nodes.filter(n => n.type === 'fixture' && n.fixtureCode === selectedCatalogCode).length + 1;
+    const newNode = {
+      id: state.nextId++, x: pt.x, y: pt.y,
+      type: 'fixture', fixtureCode: selectedCatalogCode,
+      tag: `${selectedCatalogCode}-${countSame}`
+    };
+    state.nodes.push(newNode);
+    state.selected = { kind: 'node', id: newNode.id };
+    recalculateNetwork();
+    updateInspector();
+    return;
+  }
+
+  if (state.tool === 'stack' || state.tool === 'vtr') {
+    let targetNode = null;
+    if (snapTarget && snapTarget.type === 'node') {
+      targetNode = snapTarget.node;
+      targetNode.type = state.tool;
+    } else if (snapTarget && snapTarget.type === 'pipe') {
+      targetNode = splitPipeAtPoint(snapTarget.pipe, snapTarget.x, snapTarget.y);
+      targetNode.type = state.tool;
+    } else {
+      targetNode = { id: state.nextId++, x: pt.x, y: pt.y, type: state.tool };
+      state.nodes.push(targetNode);
+    }
+    state.selected = { kind: 'node', id: targetNode.id };
+    recalculateNetwork();
+    updateInspector();
+    return;
+  }
+
+  if (state.tool === 'pipe' || state.tool === 'vent') {
+    const sys = state.tool === 'vent' ? 'vent' : 'waste';
+    let targetNode = null;
+    if (snapTarget && snapTarget.type === 'node') {
+      targetNode = snapTarget.node;
+    } else if (snapTarget && snapTarget.type === 'pipe') {
+      targetNode = splitPipeAtPoint(snapTarget.pipe, snapTarget.x, snapTarget.y);
+    } else {
+      targetNode = { id: state.nextId++, x: pt.x, y: pt.y, type: 'junction' };
+      state.nodes.push(targetNode);
+    }
+
+    if (state.activeChainNodeId && state.activeChainNodeId !== targetNode.id) {
+      const exists = state.pipes.some(p =>
+        p.system === sys &&
+        ((p.n1 === state.activeChainNodeId && p.n2 === targetNode.id) ||
+         (p.n1 === targetNode.id && p.n2 === state.activeChainNodeId))
+      );
+      if (!exists) {
+        const newPipe = {
+          id: state.nextId++, n1: state.activeChainNodeId, n2: targetNode.id,
+          system: sys, slope: parseFloat(document.getElementById('defaultSlope').value) || 0.25,
+          manualMinSize: 0, calc: {}
+        };
+        state.pipes.push(newPipe);
+        state.selected = { kind: 'pipe', id: newPipe.id };
+      }
+    }
+    state.activeChainNodeId = targetNode.id;
+    recalculateNetwork();
+    updateInspector();
+  }
+});
+
+fgCanvas.addEventListener('dblclick', e => {
+  if (!snapTarget) fitView();
+});
+
+fgCanvas.addEventListener('mousemove', e => {
+  const rect = fgCanvas.getBoundingClientRect();
+  const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+
+  if (isPanning) {
+    const dx = sx - lastMouseScreen.x;
+    const dy = sy - lastMouseScreen.y;
+    state.cam.x += dx;
+    state.cam.y += dy;
+    lastMouseScreen = { x: sx, y: sy };
+    requestBgRender();
+    requestFgRender();
+    return;
+  }
+
+  let pt = screenToWorld(sx, sy);
+
+  if (isDraggingNode && draggedNode) {
+    draggedNode.x = pt.x;
+    draggedNode.y = pt.y;
+    recalculateNetwork();
+    return;
+  }
+
+  const prevSnap = snapTarget;
+  snapTarget = findSnapTarget(pt.x, pt.y);
+
+  if (snapTarget) {
+    mouseWorld = { x: snapTarget.x, y: snapTarget.y };
+  } else if ((state.ortho || e.shiftKey) && state.activeChainNodeId) {
+    const startNode = state.nodes.find(n => n.id === state.activeChainNodeId);
+    mouseWorld = startNode ? applyOrthoSnap(startNode.x, startNode.y, pt.x, pt.y) : pt;
+  } else {
+    mouseWorld = pt;
+  }
+
+  document.getElementById('hudCoords').textContent =
+    `${(mouseWorld.x / state.pxPerFoot).toFixed(1)}', ${(mouseWorld.y / state.pxPerFoot).toFixed(1)}'`;
+
+  if (state.tool !== 'select' || snapTarget !== prevSnap) {
+    requestFgRender();
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (isPanning) {
+    isPanning = false;
+    fgCanvas.style.cursor = 'crosshair';
+  }
+  isDraggingNode = false;
+  draggedNode = null;
+});
+
+fgCanvas.addEventListener('contextmenu', e => e.preventDefault());
+
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    saveProjectFile();
+    return;
+  }
+
+  if (e.code === 'Space') {
+    spacePressed = true;
+    if (!isPanning) fgCanvas.style.cursor = 'grab';
+  }
+  if (e.key === 'Escape') {
+    state.activeChainNodeId = null;
+    state.calibratePt1 = null;
+    closeFixtureManagerModal();
+    requestFgRender();
+  }
+  if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected();
+  if (e.key.toLowerCase() === 'v') setTool('select');
+  if (e.key.toLowerCase() === 'f') setTool('fixture');
+  if (e.key.toLowerCase() === 'w') setTool('pipe');
+  if (e.key.toLowerCase() === 's') setTool('stack');
+  if (e.key.toLowerCase() === 'd') setTool('vent');
+  if (e.key.toLowerCase() === 't') setTool('vtr');
+});
+
+window.addEventListener('keyup', e => {
+  if (e.code === 'Space') {
+    spacePressed = false;
+    if (!isPanning) fgCanvas.style.cursor = 'crosshair';
+  }
+});
+
+function applyOrthoSnap(x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const dist = Math.hypot(dx, dy);
+  const angle = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4);
+  return { x: x1 + Math.cos(angle) * dist, y: y1 + Math.sin(angle) * dist };
+}
+
+/* =========================================================================
+   9. INSPECTOR, SCHEDULE & MODALS
+   ========================================================================= */
+function closeScaleModal(apply) {
+  document.getElementById('scaleModal').classList.remove('open');
+  if (apply && state.pendingCalibrateDistPx > 0) {
+    const feet = parseFloat(document.getElementById('scaleFeetInput').value) || 10;
+    if (feet > 0) {
+      state.pxPerFoot = state.pendingCalibrateDistPx / feet;
+      document.getElementById('hudScale').textContent = `${state.pxPerFoot.toFixed(1)} px = 1'`;
+      recalculateNetwork();
+      showToast(`Scale calibrated: ${state.pxPerFoot.toFixed(1)} px = 1.0 ft.`);
+    }
+  }
+  setTool('select');
+}
+
+function openConfirmClearModal() {
+  document.getElementById('clearModal').classList.add('open');
+}
+
+function confirmClearDrawing() {
+  document.getElementById('clearModal').classList.remove('open');
+  state.nodes = [];
+  state.pipes = [];
+  state.selected = null;
+  state.activeChainNodeId = null;
+  recalculateNetwork();
+  updateInspector();
+  showToast('Cleared all placed fixtures and pipes.');
+}
+
+function updateInspector() {
+  const box = document.getElementById('inspectorContent');
+  if (!state.selected) {
+    box.innerHTML = 'Select any fixture, pipe, or stack on the canvas to inspect or override its properties. You can also drag fixtures in Select (V) mode.';
+    return;
+  }
+
+  if (state.selected.kind === 'node') {
+    const n = state.nodes.find(x => x.id === state.selected.id);
+    if (!n) return;
+    if (n.type === 'fixture') {
+      const spec = getFixtureSpec(n);
+      box.innerHTML = `
+        <div style="font-weight:700; color:#38bdf8; margin-bottom:4px;">${spec.code} — ${spec.name}</div>
+        <div class="prop-row"><label>Plan Tag</label><input type="text" value="${n.tag || spec.code}" oninput="updateSelectedNode('tag', this.value)"></div>
+        <div class="prop-row"><label>Instance DFU</label><input type="number" step="0.5" min="0" value="${spec.dfu}" oninput="updateSelectedNode('dfuOverride', this.value)"></div>
+        <div class="prop-row">
+          <label>Min Waste Ø</label>
+          <select onchange="updateSelectedNode('minWasteOverride', this.value)">
+            ${[1.25, 1.5, 2, 2.5, 3, 4, 6].map(s => `<option value="${s}" ${spec.minWaste===s?'selected':''}>${fmtSize(s)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="prop-row">
+          <label>Min Vent Ø</label>
+          <select onchange="updateSelectedNode('minVentOverride', this.value)">
+            ${[1.25, 1.5, 2, 2.5, 3, 4].map(s => `<option value="${s}" ${spec.minVent===s?'selected':''}>${fmtSize(s)}</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:flex; gap:4px; margin-top:8px;">
+          <button class="btn success" style="flex:1; justify-content:center; padding:3px 4px; font-size:10px;" onclick="applyInstanceAsDefault(${n.id})" title="Save these values as the permanent default for all ${spec.code} fixtures">
+            ⭐ Set as Default
+          </button>
+          <button class="btn danger" style="padding:3px 6px; font-size:10px;" onclick="deleteSelected()">Delete</button>
+        </div>
+      `;
+    } else {
+      box.innerHTML = `
+        <div style="font-weight:700; color:#c084fc;">Node #${n.id} (${n.type.toUpperCase()})</div>
+        <button class="btn danger" style="width:100%; justify-content:center; margin-top:8px;" onclick="deleteSelected()">Delete Node</button>
+      `;
+    }
+  } else if (state.selected.kind === 'pipe') {
+    const p = state.pipes.find(x => x.id === state.selected.id);
+    if (!p) return;
+    const c = p.calc || {};
+    const warnHtml = (c.warnings && c.warnings.length)
+      ? `<div style="margin-top:4px; padding:3px 6px; background:rgba(234,179,8,0.18); border:1px solid #eab308; border-radius:4px; color:#fde047; font-size:10px;">⚠️ ${c.warnings.join('<br>')}</div>`
+      : '';
+    box.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span style="font-weight:700; color:${p.system==='vent'?'#fb923c':'#38bdf8'};">${p.system.toUpperCase()} PIPE #P-${p.id}</span>
+        <button class="btn" style="padding:2px 6px; font-size:10px;" onclick="togglePipeFlow(${p.id})" title="Flip gravity flow direction">⇄ Reverse Flow</button>
+      </div>
+      <div class="prop-row"><label>Cumulative Load</label><b>${(c.dfu || 0).toFixed(1)} DFU (${c.wcCount || 0} WCs)</b></div>
+      <div class="prop-row"><label>Calculated Size</label><b style="color:#4ade80; font-size:12.5px;">Ø ${fmtSize(c.size || 2)}</b></div>
+      <div class="prop-row"><label>Length</label><span>${(c.lengthFt || 0).toFixed(1)} ft</span></div>
+      <div class="prop-row">
+        <label>Min Size Override</label>
+        <select onchange="updateSelectedPipe('manualMinSize', this.value)">
+          <option value="0" ${!p.manualMinSize?'selected':''}>Auto (Code Table)</option>
+          ${PIPE_SIZES.map(s => `<option value="${s}" ${Number(p.manualMinSize)===s?'selected':''}>Min ${fmtSize(s)}</option>`).join('')}
+        </select>
+      </div>
+      ${warnHtml}
+      <button class="btn danger" style="width:100%; justify-content:center; margin-top:6px;" onclick="deleteSelected()">Delete Pipe</button>
+    `;
+  }
+}
+
+function updateSelectedNode(prop, val) {
+  if (!state.selected || state.selected.kind !== 'node') return;
+  const n = state.nodes.find(x => x.id === state.selected.id);
+  if (!n) return;
+  n[prop] = prop === 'tag' ? val : parseFloat(val);
+  recalculateNetwork();
+}
+
+function updateSelectedPipe(prop, val) {
+  if (!state.selected || state.selected.kind !== 'pipe') return;
+  const p = state.pipes.find(x => x.id === state.selected.id);
+  if (!p) return;
+  p[prop] = parseFloat(val);
+  recalculateNetwork();
+  updateInspector();
+}
+
+function setSchedFilter(filter) {
+  state.schedFilter = filter;
+  document.getElementById('schedTabAll').classList.toggle('active', filter === 'ALL');
+  document.getElementById('schedTabWaste').classList.toggle('active', filter === 'waste');
+  document.getElementById('schedTabVent').classList.toggle('active', filter === 'vent');
+  renderScheduleTable();
+}
+
+function renderScheduleTable() {
+  const tbody = document.getElementById('scheduleTableBody');
+  const fixtures = state.nodes.filter(n => n.type === 'fixture');
+  const totalDfu = fixtures.reduce((acc, f) => acc + getFixtureSpec(f).dfu, 0);
+  document.getElementById('systemSummaryStats').textContent =
+    `Total: ${totalDfu.toFixed(1)} DFU | ${fixtures.length} Fixtures | ${state.pipes.length} Pipes`;
+
+  const frag = document.createDocumentFragment();
+  state.pipes
+    .filter(p => state.schedFilter === 'ALL' || p.system === state.schedFilter)
+    .forEach(p => {
+      const tr = document.createElement('tr');
+      if (state.selected && state.selected.kind === 'pipe' && state.selected.id === p.id) tr.className = 'selected-row';
+      const c = p.calc || {};
+      const sz = c.size || 1.5;
+      tr.innerHTML = `
+        <td>P-${p.id}</td>
+        <td style="color:${p.system==='vent'?'#fb923c':'#38bdf8'}; font-weight:600;">${p.system.toUpperCase()}</td>
+        <td>${(c.dfu || 0).toFixed(1)}</td>
+        <td>${fmtSize(c.minReq || 1.25)}</td>
+        <td style="font-weight:700; color:${SIZE_COLORS[sz] || '#fff'}">Ø ${fmtSize(sz)}</td>
+        <td>${(c.lengthFt || 0).toFixed(1)}'</td>
+      `;
+      tr.onclick = () => {
+        state.selected = { kind: 'pipe', id: p.id };
+        updateInspector();
+        renderScheduleTable();
+        requestFgRender();
+      };
+      frag.appendChild(tr);
+    });
+  tbody.innerHTML = '';
+  tbody.appendChild(frag);
+}
+
+function setTool(tool) {
+  state.tool = tool;
+  state.activeChainNodeId = null;
+  state.calibratePt1 = null;
+  ['select', 'fixture', 'pipe', 'stack', 'vent', 'vtr'].forEach(t => {
+    const btn = document.getElementById('tool-' + t);
+    if (btn) {
+      btn.classList.remove('active', 'active-vent');
+      if (t === tool) btn.classList.add(tool === 'vent' || tool === 'vtr' ? 'active-vent' : 'active');
+    }
+  });
+  document.getElementById('btnCalibrate').classList.toggle('active', tool === 'calibrate');
+  document.getElementById('hudTool').textContent = `Tool: ${tool.toUpperCase()}`;
+  renderFixtureCatalog();
+  requestFgRender();
+}
+
+function toggleOrtho() {
+  state.ortho = !state.ortho;
+  document.getElementById('btnOrtho').classList.toggle('active', state.ortho);
+}
+
+function toggleLayer(layer) {
+  state.layers[layer] = !state.layers[layer];
+  const mapBtn = { waste: 'visWaste', vent: 'visVent', labels: 'visLabels' };
+  document.getElementById(mapBtn[layer]).classList.toggle('active', state.layers[layer]);
+  requestFgRender();
+}
+
+function deleteSelected() {
+  if (!state.selected) return;
+  if (state.selected.kind === 'node') {
+    const id = state.selected.id;
+    state.nodes = state.nodes.filter(n => n.id !== id);
+    state.pipes = state.pipes.filter(p => p.n1 !== id && p.n2 !== id);
+  } else if (state.selected.kind === 'pipe') {
+    state.pipes = state.pipes.filter(p => p.id !== state.selected.id);
+  }
+  state.selected = null;
+  state.activeChainNodeId = null;
+  recalculateNetwork();
+  updateInspector();
+}
+
+function exportCSV() {
+  let csv = 'Pipe_ID,System,Cumulative_DFU,WC_Count,Min_Required_Dia,Calculated_Pipe_Size,Length_Ft,Slope_In_Per_Ft\n';
+  state.pipes.forEach(p => {
+    const c = p.calc || {};
+    csv += `P-${p.id},${p.system.toUpperCase()},${(c.dfu||0).toFixed(1)},${c.wcCount||0},"${fmtSize(c.minReq||1.25)}","${fmtSize(c.size||1.5)}",${(c.lengthFt||0).toFixed(2)},${p.slope||0.25}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plumbing_pipe_schedule.csv';
+  a.click();
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('statusToast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.display = 'none'; }, 4500);
+}
+
+/* =========================================================================
+   10. INITIALIZE
+   ========================================================================= */
+loadFixtureCatalog();
+renderFixtureCatalog();
+resizeCanvases();
+recalculateNetwork();
+</script>
+</body>
+</html>

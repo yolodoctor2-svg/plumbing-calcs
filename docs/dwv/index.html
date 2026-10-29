@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>MEP Plumbing Sizer Studio — UPC 2024 & Clark County NV</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="manifest" href="../manifest.webmanifest">
+<style>:root{--bg-dark: #0f172a;--bg-panel: #1e293b;--bg-card: #263349;--bg-input: #0b1120;--border: #334155;--text-main: #f1f5f9;--text-muted: #94a3b8;--accent: #3b82f6;--accent-hover: #2563eb;--success: #22c55e;--danger: #ef4444}*{box-sizing:border-box;margin:0;padding:0;user-select:none}html,body{width:100%;height:100%;min-height:540px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:var(--bg-dark);color:var(--text-main);display:flex;flex-direction:column;overflow:hidden;font-size:12px}.topbar{height:46px;background:var(--bg-panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;gap:6px;flex-shrink:0;overflow-x:auto}.brand{font-weight:700;font-size:12.5px;color:#fff;display:flex;align-items:center;gap:6px;padding-right:8px;border-right:1px solid var(--border);white-space:nowrap}.brand span.badge{background:#1d4ed8;color:#dbeafe;font-size:10px;padding:2px 5px;border-radius:4px}.tool-group{display:flex;align-items:center;gap:4px;padding-right:6px;border-right:1px solid var(--border);white-space:nowrap}.btn{background:var(--bg-card);color:var(--text-main);border:1px solid var(--border);padding:5px 8px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}.btn:hover{background:#334155;border-color:#475569}.btn.active{background:var(--accent);border-color:#60a5fa;color:#fff}.btn.active-vent{background:#ea580c;border-color:#fb923c;color:#fff}.btn.primary{background:var(--accent);border-color:var(--accent-hover);color:#fff}.btn.primary:hover{background:var(--accent-hover)}.btn.success{background:#15803d;border-color:#22c55e;color:#fff}.btn.success:hover{background:#16a34a}.btn.danger{color:#fca5a5}.btn.danger:hover{background:#7f1d1d;color:#fff}.btn kbd{background:#0000004d;padding:1px 4px;border-radius:3px;font-size:9px;font-family:monospace}.icon-btn-dots{background:var(--bg-card);color:var(--text-main);border:1px solid var(--border);width:28px;height:26px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700}.icon-btn-dots:hover{background:var(--accent);color:#fff}select.top-select{background:var(--bg-input);color:var(--text-main);border:1px solid var(--border);padding:4px 5px;border-radius:4px;font-size:11px}.workspace{flex:1;min-height:0;display:flex;overflow:hidden}.sidebar-left{width:285px;min-height:0;height:100%;background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}.panel-header{padding:8px 10px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex-shrink:0}.panel-title-row{display:flex;justify-content:space-between;align-items:center}.panel-title{font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:#cbd5e1}.search-input{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text-main);padding:5px 8px;border-radius:4px;font-size:11px}.cat-tabs{display:flex;gap:3px}.cat-tab{flex:1;text-align:center;padding:4px 2px;font-size:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;color:var(--text-muted);cursor:pointer;font-weight:600}.cat-tab.active{background:var(--accent);color:#fff;border-color:#60a5fa}.fixture-list{flex:1;min-height:0;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:5px}.fixture-card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 8px;cursor:pointer;flex-shrink:0}.fixture-card:hover{border-color:#64748b;background:#2d3d56}.fixture-card.selected{border-color:#38bdf8;background:#1e3a5f;box-shadow:0 0 0 1px #38bdf8 inset}.fc-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}.fc-badge{display:inline-flex;align-items:center;justify-content:center;min-width:40px;padding:2px 5px;border-radius:4px;font-weight:700;font-size:10px;color:#fff;flex-shrink:0}.fc-name{font-weight:600;font-size:11px;color:#f8fafc;flex:1;line-height:1.2}.fc-meta{display:flex;align-items:center;gap:4px;font-size:10px;flex-wrap:wrap}.fc-pill{background:#0f172ab3;border:1px solid rgba(71,85,105,.6);padding:1px 5px;border-radius:3px;font-weight:600;color:#cbd5e1}.fc-pill.dfu{color:#4ade80}.fc-pill.wc{color:#fbbf24}.canvas-wrap{flex:1;min-width:0;min-height:0;position:relative;background:#090d16;overflow:hidden}.canvas-layer{position:absolute;top:0;left:0;width:100%;height:100%;display:block}#bgCanvas{z-index:1;pointer-events:none}#fgCanvas{z-index:2;cursor:crosshair}.legend-bar{position:absolute;top:8px;left:8px;z-index:10;background:#0f172aeb;border:1px solid var(--border);padding:5px 8px;border-radius:5px;display:flex;gap:8px;align-items:center;font-size:10.5px;pointer-events:none}.legend-item{display:flex;align-items:center;gap:3px}.legend-swatch{width:10px;height:4px;border-radius:2px}.toast-banner{position:absolute;top:8px;right:8px;z-index:15;background:#1e293bf5;border:1px solid #38bdf8;color:#f8fafc;padding:6px 10px;border-radius:5px;font-size:11px;max-width:360px;pointer-events:none}.canvas-hud{position:absolute;bottom:8px;left:8px;z-index:10;background:#0f172aeb;border:1px solid var(--border);padding:5px 8px;border-radius:5px;display:flex;align-items:center;gap:8px;font-size:10.5px;color:#cbd5e1;pointer-events:none}.sidebar-right{width:310px;min-height:0;height:100%;background:var(--bg-panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}.inspector-box{padding:8px 10px;border-bottom:1px solid var(--border);min-height:175px;max-height:250px;overflow-y:auto;flex-shrink:0}.prop-row{display:flex;justify-content:space-between;align-items:center;margin-top:5px;gap:6px}.prop-row label{color:var(--text-muted);font-size:11px}.prop-row input,.prop-row select{background:var(--bg-input);color:#fff;border:1px solid var(--border);padding:3px 6px;border-radius:4px;font-size:11px;width:135px}.schedule-box{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}.table-scroll{flex:1;min-height:0;overflow-y:auto}table.sched-table{width:100%;border-collapse:collapse;font-size:10.5px}table.sched-table th{background:#131c2e;color:var(--text-muted);text-align:left;padding:5px 6px;position:sticky;top:0;border-bottom:1px solid var(--border);z-index:2}table.sched-table td{padding:4px 6px;border-bottom:1px solid rgba(51,65,85,.5);cursor:pointer}table.sched-table tr:hover td{background:#3b82f624}table.sched-table tr.selected-row td{background:#3b82f64d}.modal-backdrop{position:fixed;inset:0;background:#000000b8;display:none;align-items:center;justify-content:center;z-index:100}.modal-backdrop.open{display:flex}.modal-xl{background:var(--bg-panel);border:1px solid #475569;border-radius:8px;width:860px;max-width:96vw;height:84vh;display:flex;flex-direction:column;overflow:hidden}.modal-sm{background:var(--bg-panel);border:1px solid #475569;border-radius:8px;width:360px;max-width:92vw;padding:16px}.modal-header{padding:10px 14px;background:#131c2e;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.modal-toolbar{padding:8px 14px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}.modal-body{flex:1;min-height:0;overflow-y:auto}.modal-footer{padding:8px 14px;background:#131c2e;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}table.edit-fix-table{width:100%;border-collapse:collapse;font-size:11px}table.edit-fix-table th{background:#162032;color:var(--text-muted);padding:6px 8px;text-align:left;position:sticky;top:0;border-bottom:1px solid var(--border);z-index:5}table.edit-fix-table td{padding:5px 8px;border-bottom:1px solid rgba(51,65,85,.5)}table.edit-fix-table input[type=text],table.edit-fix-table input[type=number],table.edit-fix-table select{background:var(--bg-input);color:#fff;border:1px solid #475569;padding:3px 5px;border-radius:4px;font-size:11px;width:100%}.new-fixture-bar{background:#3b82f61a;border:1px solid rgba(59,130,246,.35);border-radius:6px;padding:6px 8px;display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}.nf-field{display:flex;flex-direction:column;gap:2px}.nf-field label{font-size:9.5px;color:#93c5fd;font-weight:600}.nf-field input,.nf-field select{background:var(--bg-input);color:#fff;border:1px solid #475569;padding:3px 5px;border-radius:4px;font-size:11px}.mobile-only{display:none}@media(max-width:1000px){.mobile-only{display:inline-flex}.workspace{position:relative}.sidebar-left,.sidebar-right{position:absolute;top:0;bottom:0;z-index:30;max-width:88vw;transition:transform .18s ease;box-shadow:0 0 24px #0000008c}.sidebar-left{left:0;transform:translate(-105%)}.sidebar-right{right:0;transform:translate(105%)}body.show-left .sidebar-left,body.show-right .sidebar-right{transform:none}.canvas-hud span:last-child{display:none}}
+</style>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+
+<!-- TOP TOOLBAR -->
+<div class="topbar">
+  <button class="btn mobile-only" id="btnDrawerLeft" title="Fixture list">☰ Fixtures</button>
+  <button class="btn mobile-only" id="btnDrawerRight" title="Inspector &amp; pipe schedule">ⓘ Info</button>
+  <div class="brand">
+    <a href="../" title="All plumbing tools" style="color:#93c5fd;text-decoration:none;">&larr;</a>
+    <span>Plumbing Sizer</span>
+    <span class="badge">UPC 2024 + Clark Co.</span>
+  </div>
+
+  <div class="tool-group">
+    <input type="file" id="planFileInput" accept=".pdf,image/*" style="display:none">
+    <label for="planFileInput" class="btn primary" title="Import PDF Plan or Image">
+      📄 Plan
+    </label>
+    <div id="pdfPageControls" style="display:none; align-items:center; gap:3px;">
+      <button class="btn" onclick="changePdfPage(-1)">◀</button>
+      <span id="pdfPageLabel" style="font-size:10.5px; padding:0 3px;">1/1</span>
+      <button class="btn" onclick="changePdfPage(1)">▶</button>
+    </div>
+
+    <!-- Save / Open Project File -->
+    <button class="btn success" onclick="saveProjectFile()" title="Save whole project (pipes, fixtures & plan) to a .plumb.json file [Ctrl+S]">
+      💾 Save
+    </button>
+    <input type="file" id="projectFileInput" accept=".json,.plumb" style="display:none">
+    <label for="projectFileInput" class="btn" title="Open a saved project file (.plumb.json)">
+      📂 Open
+    </label>
+
+    <button class="btn" id="btnCalibrate" onclick="setTool('calibrate')" title="Click 2 points on plan to calibrate scale">
+      📏 Scale
+    </button>
+    <label style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:3px;" title="Plan Underlay Opacity">
+      Plan
+      <input type="range" id="planOpacity" min="10" max="100" value="70" style="width:44px" oninput="updatePlanOpacity(this.value)">
+    </label>
+  </div>
+
+  <div class="tool-group">
+    <button class="btn active" id="tool-select" onclick="setTool('select')">↖ Select <kbd>V</kbd></button>
+    <button class="btn" id="tool-fixture" onclick="setTool('fixture')">🚽 Fixture <kbd>F</kbd></button>
+    <button class="btn" id="tool-pipe" onclick="setTool('pipe')">🟦 Waste <kbd>W</kbd></button>
+    <button class="btn" id="tool-stack" onclick="setTool('stack')">⭕ Stack <kbd>S</kbd></button>
+    <button class="btn" id="tool-vent" onclick="setTool('vent')">🟧 Vent <kbd>D</kbd></button>
+    <button class="btn" id="tool-vtr" onclick="setTool('vtr')">🔺 VTR <kbd>T</kbd></button>
+  </div>
+
+  <div class="tool-group">
+    <select id="codeMode" class="top-select" onchange="recalculateNetwork()">
+      <option value="UPC2024">UPC 2024 (Clark Co.)</option>
+      <option value="IPC2024">IPC 2024</option>
+    </select>
+    <select id="defaultSlope" class="top-select" onchange="recalculateNetwork()">
+      <option value="0.25">1/4" / ft</option>
+      <option value="0.125">1/8" / ft</option>
+    </select>
+    <button class="btn" id="btnOrtho" onclick="toggleOrtho()">📐 Ortho</button>
+    <label style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:3px;" title="Adjust Fixture & Tag Size on Plan">
+      Size
+      <input type="range" id="symbolScaleSlider" min="0.5" max="3.0" step="0.1" value="1.2" style="width:44px" oninput="updateSymbolScale(this.value)">
+    </label>
+  </div>
+
+  <div class="tool-group" style="border-right:none">
+    <button class="btn active" id="visWaste" onclick="toggleLayer('waste')">Waste</button>
+    <button class="btn active" id="visVent" onclick="toggleLayer('vent')">Vent</button>
+    <button class="btn active" id="visLabels" onclick="toggleLayer('labels')">Tags</button>
+    <button class="btn" onclick="fitView()" title="Zoom to Extents (or Double-Click Wheel)">Fit</button>
+    <button class="btn" onclick="exportCSV()">CSV</button>
+    <button class="btn danger" onclick="openConfirmClearModal()">Clear</button>
+  </div>
+</div>
+
+<!-- MAIN WORKSPACE -->
+<div class="workspace">
+
+  <!-- LEFT SIDEBAR: UPC FIXTURE LIST -->
+  <div class="sidebar-left">
+    <div class="panel-header">
+      <div class="panel-title-row">
+        <span class="panel-title">UPC Fixtures (<span id="fixtureCountLabel">46</span>)</span>
+        <button class="icon-btn-dots" onclick="openFixtureManagerModal()" title="More Options — Edit Fixture Values & Add Custom Fixtures">⋮</button>
+      </div>
+      <input type="text" id="fixtureSearch" class="search-input" placeholder="Search (WC, FD, Lav, Sink)..." oninput="renderFixtureCatalog()">
+      <div class="cat-tabs">
+        <div class="cat-tab active" onclick="setCategory('ALL', this)">All</div>
+        <div class="cat-tab" onclick="setCategory('RESTROOM', this)">Restroom</div>
+        <div class="cat-tab" onclick="setCategory('DRAIN', this)">Drains</div>
+        <div class="cat-tab" onclick="setCategory('SINK', this)">Sinks</div>
+        <div class="cat-tab" onclick="setCategory('MED', this)">Med/Bath</div>
+      </div>
+    </div>
+    <div class="fixture-list" id="fixtureListContainer"></div>
+  </div>
+
+  <!-- CENTER: DUAL-LAYER CANVAS -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="bgCanvas" class="canvas-layer"></canvas>
+    <canvas id="fgCanvas" class="canvas-layer"></canvas>
+
+    <div class="legend-bar">
+      <span style="font-weight:700; color:#94a3b8;">Ø:</span>
+      <div class="legend-item"><span class="legend-swatch" style="background:#a3e635"></span>1¼"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#facc15"></span>1½"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#22d3ee"></span>2"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#3b82f6"></span>3"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#a855f7"></span>4"</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#ec4899"></span>6"+</div>
+      <span style="margin-left:4px; color:#fb923c; font-weight:700;">- - Vent</span>
+    </div>
+
+    <div id="statusToast" class="toast-banner">
+      Tip: Custom sizes save automatically as your personal defaults across browser reloads!
+    </div>
+
+    <div class="canvas-hud">
+      <span id="hudTool">Tool: SELECT</span>
+      <span>|</span>
+      <span id="hudScale">10.0 px = 1'</span>
+      <span>|</span>
+      <span id="hudCoords">0.0', 0.0'</span>
+      <span>|</span>
+      <span>AutoCAD Nav: Middle Drag Pan • Wheel Zoom • Double Click Wheel to Zoom Extents</span>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR: INSPECTOR & SCHEDULE -->
+  <div class="sidebar-right">
+    <div class="inspector-box">
+      <div class="panel-title" style="margin-bottom:4px;">Element Inspector</div>
+      <div id="inspectorContent" style="color:var(--text-muted); font-size:11px; line-height:1.35;">
+        Select any fixture, pipe, or stack on the canvas to inspect or override its properties. You can also drag fixtures in Select (V) mode.
+      </div>
+    </div>
+
+    <div class="schedule-box">
+      <div class="panel-header" style="padding:6px 10px;">
+        <div class="panel-title-row">
+          <span class="panel-title">Pipe Schedule</span>
+          <div style="display:flex; gap:3px;">
+            <button class="btn active" id="schedTabAll" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('ALL')">All</button>
+            <button class="btn" id="schedTabWaste" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('waste')">Waste</button>
+            <button class="btn" id="schedTabVent" style="padding:2px 5px; font-size:9.5px;" onclick="setSchedFilter('vent')">Vent</button>
+          </div>
+        </div>
+        <div id="systemSummaryStats" style="font-size:10.5px; color:#38bdf8; font-weight:600;">
+          Total: 0.0 DFU | 0 Fixtures | 0 Pipes
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="sched-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Sys</th>
+              <th>DFU</th>
+              <th>Min</th>
+              <th>Size</th>
+              <th>Len</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL 1: 3-DOT FIXTURE LIBRARY EDITOR -->
+<div class="modal-backdrop" id="fixtureManagerModal" onclick="if(event.target===this) closeFixtureManagerModal()">
+  <div class="modal-xl">
+    <div class="modal-header">
+      <h3>Edit Fixture Library & Persistent Defaults (UPC 2024 / Clark County NV)</h3>
+      <button class="btn" onclick="closeFixtureManagerModal()">✕ Close</button>
+    </div>
+
+    <div class="modal-toolbar">
+      <div class="new-fixture-bar">
+        <div class="nf-field" style="width:80px;">
+          <label>Code</label>
+          <input type="text" id="newFixCode" placeholder="e.g. FD-SP">
+        </div>
+        <div class="nf-field" style="flex:1; min-width:150px;">
+          <label>Description</label>
+          <input type="text" id="newFixName" placeholder="e.g. Custom Trench Drain">
+        </div>
+        <div class="nf-field" style="width:105px;">
+          <label>Category</label>
+          <select id="newFixCat">
+            <option value="RESTROOM">Restroom</option>
+            <option value="DRAIN" selected>Drains</option>
+            <option value="SINK">Sinks</option>
+            <option value="MED">Med/Bath</option>
+          </select>
+        </div>
+        <div class="nf-field" style="width:65px;">
+          <label>DFU</label>
+          <input type="number" step="0.5" min="0" id="newFixDfu" value="2.0">
+        </div>
+        <div class="nf-field" style="width:80px;">
+          <label>Min Waste</label>
+          <select id="newFixWaste">
+            <option value="1.25">1-1/4"</option>
+            <option value="1.5">1-1/2"</option>
+            <option value="2" selected>2"</option>
+            <option value="2.5">2-1/2"</option>
+            <option value="3">3"</option>
+            <option value="4">4"</option>
+            <option value="6">6"</option>
+          </select>
+        </div>
+        <div class="nf-field" style="width:80px;">
+          <label>Min Vent</label>
+          <select id="newFixVent">
+            <option value="1.25">1-1/4"</option>
+            <option value="1.5" selected>1-1/2"</option>
+            <option value="2">2"</option>
+            <option value="2.5">2-1/2"</option>
+            <option value="3">3"</option>
+            <option value="4">4"</option>
+          </select>
+        </div>
+        <div class="nf-field" style="align-items:center; padding-bottom:3px;">
+          <label>WC</label>
+          <input type="checkbox" id="newFixWC" style="width:14px; height:14px;">
+        </div>
+        <button class="btn primary" onclick="addNewFixtureFromModal()">+ Add</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <input type="text" id="modalFixtureSearch" class="search-input" style="max-width:300px;" placeholder="Filter table..." oninput="renderModalFixtureTable()">
+        <span style="font-size:10.5px; color:var(--text-muted);">Edits save automatically to your browser as your permanent defaults.</span>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <table class="edit-fix-table">
+        <thead>
+          <tr>
+            <th style="width:80px;">Code</th>
+            <th>Description</th>
+            <th style="width:110px;">Category</th>
+            <th style="width:80px;">DFU</th>
+            <th style="width:100px;">Min Waste</th>
+            <th style="width:100px;">Min Vent</th>
+            <th style="width:60px; text-align:center;">WC</th>
+            <th style="width:50px; text-align:center;">Del</th>
+          </tr>
+        </thead>
+        <tbody id="modalFixtureTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn danger" onclick="resetDefaultFixtures()">↺ Reset to UPC 2024 Defaults</button>
+      <div style="display:flex; gap:6px;">
+        <button class="btn success" onclick="saveAsMyDefaults()">⭐ Save as My Defaults</button>
+        <button class="btn primary" onclick="closeFixtureManagerModal()">✓ Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: SCALE CALIBRATION -->
+<div class="modal-backdrop" id="scaleModal">
+  <div class="modal-sm">
+    <h3 style="margin-bottom:8px; font-size:13.5px;">📏 Set Real-World Distance</h3>
+    <p style="color:var(--text-muted); font-size:11px; margin-bottom:10px;">
+      Enter the real distance (in feet) between the two points you clicked:
+    </p>
+    <input type="number" id="scaleFeetInput" class="search-input" value="10" step="0.5" min="0.5" style="margin-bottom:12px; font-size:13px;">
+    <div style="display:flex; justify-content:flex-end; gap:6px;">
+      <button class="btn" onclick="closeScaleModal(false)">Cancel</button>
+      <button class="btn primary" onclick="closeScaleModal(true)">Apply Scale</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: CLEAR CONFIRMATION -->
+<div class="modal-backdrop" id="clearModal">
+  <div class="modal-sm">
+    <h3 style="margin-bottom:8px; font-size:13.5px;">🗑️ Clear Drawing?</h3>
+    <p style="color:var(--text-muted); font-size:11px; margin-bottom:12px;">
+      This will remove all placed fixtures and pipes. Your loaded plan will remain.
+    </p>
+    <div style="display:flex; justify-content:flex-end; gap:6px;">
+      <button class="btn" onclick="document.getElementById('clearModal').classList.remove('open')">Cancel</button>
+      <button class="btn danger" onclick="confirmClearDrawing()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<script>if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('../sw.js',{scope:'../'});</script>
+</body>
+</html>
