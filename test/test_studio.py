@@ -10,7 +10,7 @@ def check(name, cond, info=''):
     (ok if cond else bad).append(name); print(('ok ' if cond else '!! ') + name + ('' if cond else ' :: ' + str(info)[:600]), flush=True)
 ST = {'orig': 'state', 'port': 'window.PSS.state'}
 
-def scenario(pg, kind):
+def scenario(pg, kind, fixtures=('WC-P', 'WC-P', 'LAV-C', 'FS-2', 'UR-W')):
     S = ST[kind]
     def click_world(x, y, button='left'):
         sx, sy = pg.evaluate(f'([x,y])=>{{const s={S};const r=document.getElementById("fgCanvas").getBoundingClientRect();return [r.left+s.cam.x+x*s.cam.zoom, r.top+s.cam.y+y*s.cam.zoom]}}', [x, y])
@@ -19,12 +19,13 @@ def scenario(pg, kind):
     def fixture(code, x, y):
         pg.evaluate(f'(()=>{{ {"CAT.sel" if kind=="port" else "selectedCatalogCode"} = "{code}"; }})()'.replace('CAT.sel', 'window.PSS.CAT.sel')); tool('fixture'); click_world(x, y)
     pg.evaluate(f'(()=>{{const s={S}; s.cam.x=60; s.cam.y=50; s.cam.zoom=1; requestFgRender(); requestBgRender();}})()')
-    fixture('WC-P', 100, 100); fixture('WC-P', 200, 100); fixture('LAV-C', 300, 100); fixture('FS-2', 400, 100); fixture('UR-W', 500, 100)
+    xs = [100 + 100 * i for i in range(len(fixtures))]
+    for code, x in zip(fixtures, xs): fixture(code, x, 100)
     tool('stack'); click_world(650, 300)
     tool('pipe')
     click_world(100, 300); click_world(650, 300)            # main
     pg.keyboard.press('Escape')
-    for x in (100, 200, 300, 400, 500):
+    for x in xs:
         click_world(x, 100); click_world(x, 300); pg.keyboard.press('Escape')   # branches tee into main
     tool('vtr'); click_world(650, 30)
     tool('vent'); click_world(100, 100); click_world(100, 30); click_world(650, 30); pg.keyboard.press('Escape')
@@ -72,6 +73,47 @@ with sync_playwright() as p:
     fo, fq = json.load(open(o['file'])), json.load(open(q['file']))
     for k in ('savedAt',): fo.pop(k); fq.pop(k)
     check('same .plumb.json content (except timestamp)', json.dumps(fo, sort_keys=True) == json.dumps(fq, sort_keys=True))
+    # IPC mode must be unchanged vs. the original file (same drawing, codeMode switched to IPC2024)
+    ipc = {}
+    for kind, url in (('orig', ORIG), ('port', PORT)):
+        ctx = b.new_context(viewport={'width': 1440, 'height': 900}); pg = ctx.new_page(); pg.on('dialog', lambda d: d.accept())
+        pg.goto(url, wait_until='load'); pg.wait_for_timeout(500)
+        pg.evaluate('document.getElementById("codeMode").value="IPC2024"')
+        r = scenario(pg, kind); pg.evaluate('recalculateNetwork()')
+        ipc[kind] = pg.evaluate(f'(()=>{{const s={ST[kind]}; return PIPES}})()'.replace('PIPES', "s.pipes.map(p=>[p.system,p.n1,p.n2,+(p.calc.dfu||0).toFixed(2),p.calc.size,p.calc.wcCount||0,+(p.calc.lengthFt||0).toFixed(2),(p.calc.warnings||[]).join('|')])"))
+        ctx.close()
+    check('IPC mode: same pipes/sizes/warnings as the original', ipc['orig'] == ipc['port'], json.dumps(ipc)[:1500])
+
+    # UPC 2024 fixes (intentional divergence from the original): 4 public WCs on one horizontal main
+    upc = {}
+    for kind, url in (('orig', ORIG), ('port', PORT)):
+        ctx = b.new_context(viewport={'width': 1440, 'height': 900}); pg = ctx.new_page(); errs = []; pg.on('pageerror', lambda e: errs.append(str(e))); pg.on('dialog', lambda d: d.accept())
+        pg.goto(url, wait_until='load'); pg.wait_for_timeout(500)
+        upc[kind] = scenario(pg, kind, ('WC-P', 'WC-P', 'WC-P', 'WC-P'))['pipes']
+        if kind == 'port':
+            main = max(upc[kind], key=lambda r: r[3])
+            check('UPC: 4 WCs / 24 DFU main stays 3" (2024 note 4: six WCs on 3")', main[4] == 3 and main[5] == 4 and not main[7], main)
+            # 1/8 slope: only building drain >= 4", with AHJ warning; elsewhere warned, never silently upsized
+            res8 = pg.evaluate("""(()=>{const s=window.PSS.state; s.pipes.filter(p=>p.system==='waste').forEach(p=>p.slope=0.125);
+                recalculateNetwork(); const w=s.pipes.filter(p=>p.system==='waste'); const m=w.reduce((a,p)=>p.calc.dfu>a.calc.dfu?p:a);
+                const before=[m.calc.size, m.calc.warnings.join('|')]; m.isBuildingDrain=1; recalculateNetwork();
+                return {branch: before, drain: [m.calc.size, m.calc.warnings.join('|')]};})()""")
+            check('UPC: 1/8"/ft on a non-building-drain pipe is warned (708.1), size not bumped', res8['branch'][0] == 3 and 'not permitted' in res8['branch'][1], res8)
+            check('UPC: 1/8"/ft on a 3" building drain warned (708.1 needs >=4")', 'requires' in res8['drain'][1], res8)
+            big = pg.evaluate("""(()=>{const s=window.PSS.state; const w=s.pipes.filter(p=>p.system==='waste'); const m=w.reduce((a,p)=>p.calc.dfu>a.calc.dfu?p:a);
+                m.manualMinSize=4; recalculateNetwork(); return [m.calc.size, m.calc.warnings.join('|')];})()""")
+            check('UPC: 1/8"/ft on a 4" building drain -> x0.8 + AHJ approval warning', big[0] == 4 and 'AHJ' in big[1], big)
+            check('UPC: no page errors', not errs, errs)
+        ctx.close()
+    om = max(upc['orig'], key=lambda r: r[3])
+    check('original file still bumps 4 WCs to 4" (documents the intended change)', om[4] == 4, om)
+
+    # Pure code-table unit tests (node)
+    import subprocess
+    ut = subprocess.run(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_codetables.mjs')], capture_output=True, text=True)
+    print(ut.stdout.strip().splitlines()[-1])
+    check('codetables unit tests (node test/test_codetables.mjs)', ut.returncode == 0, ut.stdout[-1200:])
+
     # touch / phone
     ctx = b.new_context(viewport={'width': 430, 'height': 932}, is_mobile=True, has_touch=True, device_scale_factor=3); pg = ctx.new_page(); errs = []
     pg.on('pageerror', lambda e: errs.append(str(e)))

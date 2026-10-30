@@ -2,6 +2,7 @@
 import { getFixtureSpec } from './catalog.js';
 import { requestFgRender } from './render.js';
 import { state } from './state.js';
+import { sizeWastePipeByCode, sizeVentPipeByCode } from './codetables.js';
 import { requestScheduleRender, showToast, updateInspector } from './ui.js';
 // @end imports
 /* =========================================================================
@@ -9,75 +10,9 @@ import { requestScheduleRender, showToast, updateInspector } from './ui.js';
    ========================================================================= */
 
 
-export function sizeWastePipeByCode(dfu, wcCount, minTrapSize, slope, codeMode) {
-  let reqSize = Math.max(1.25, minTrapSize || 1.25);
-  const warnings = [];
-  if (wcCount > 0 && reqSize < 3.0) reqSize = 3.0;
-
-  if (codeMode === 'UPC2024') {
-    const upcLimits = [
-      { size: 1.25, maxDfu: 1 },
-      { size: 1.5,  maxDfu: 2 },
-      { size: 2.0,  maxDfu: 8 },
-      { size: 2.5,  maxDfu: 14 },
-      { size: 3.0,  maxDfu: 35 },
-      { size: 4.0,  maxDfu: slope < 0.2 ? 180 : 216 },
-      { size: 6.0,  maxDfu: slope < 0.2 ? 700 : 840 },
-      { size: 8.0,  maxDfu: slope < 0.2 ? 1600 : 1920 }
-    ];
-    if (wcCount > 3 && reqSize <= 3.0) {
-      reqSize = 4.0;
-      warnings.push(`${wcCount} WCs > UPC 3" max (3) → 4"`);
-    }
-    for (const row of upcLimits) {
-      if (row.size >= reqSize && dfu <= row.maxDfu) return { size: row.size, warnings };
-    }
-    return { size: 8.0, warnings };
-  } else {
-    const ipcLimits = [
-      { size: 1.25, maxDfu: 1 },
-      { size: 1.5,  maxDfu: 3 },
-      { size: 2.0,  maxDfu: 6 },
-      { size: 2.5,  maxDfu: 12 },
-      { size: 3.0,  maxDfu: 20 },
-      { size: 4.0,  maxDfu: 160 },
-      { size: 6.0,  maxDfu: 620 },
-      { size: 8.0,  maxDfu: 1400 }
-    ];
-    if (wcCount > 2 && reqSize <= 3.0) {
-      reqSize = 4.0;
-      warnings.push(`${wcCount} WCs > IPC 3" max (2) → 4"`);
-    }
-    for (const row of ipcLimits) {
-      if (row.size >= reqSize && dfu <= row.maxDfu) return { size: row.size, warnings };
-    }
-    return { size: 8.0, warnings };
-  }
-}
-
-export function sizeVentPipeByCode(dfu, minFixtureVent, largestConnectedWaste, devLenFt) {
-  let reqSize = Math.max(1.25, minFixtureVent || 1.25, (largestConnectedWaste || 1.25) / 2);
-  const warnings = [];
-  const upcVentTable = [
-    { size: 1.25, maxDfu: 1,   maxLen: 45 },
-    { size: 1.5,  maxDfu: 8,   maxLen: 60 },
-    { size: 2.0,  maxDfu: 24,  maxLen: 120 },
-    { size: 2.5,  maxDfu: 48,  maxLen: 180 },
-    { size: 3.0,  maxDfu: 84,  maxLen: 212 },
-    { size: 4.0,  maxDfu: 256, maxLen: 300 },
-    { size: 6.0,  maxDfu: 1380,maxLen: 510 }
-  ];
-  for (const row of upcVentTable) {
-    if (row.size >= reqSize && dfu <= row.maxDfu) {
-      if (devLenFt > row.maxLen) {
-        warnings.push(`Len (${devLenFt.toFixed(0)}') > max (${row.maxLen}')`);
-        continue;
-      }
-      return { size: row.size, warnings };
-    }
-  }
-  return { size: 6.0, warnings };
-}
+// Code tables + per-pipe sizing live in codetables.js (pure, unit-tested). Re-exported so the
+// inline handlers / window globals keep working.
+export { sizeWastePipeByCode, sizeVentPipeByCode } from './codetables.js';
 
 export function togglePipeFlow(pipeId) {
   const p = state.pipes.find(x => x.id === pipeId);
@@ -192,20 +127,25 @@ export function recalculateNetwork() {
   });
 
   wastePipes.forEach(p => {
-    let sumDfu = 0, wcCount = 0, maxMinWaste = 1.25;
+    let sumDfu = 0, wcCount = 0, maxMinWaste = 1.25, sixUnitCount = 0, lavCount = 0, nFix = 0;
     p.calc.fixtureSet.forEach(fid => {
       const fn = nodeMap.get(fid);
       if (fn) {
         const spec = getFixtureSpec(fn);
         sumDfu += spec.dfu;
+        nFix += 1;
         if (spec.isWC) wcCount += 1;
+        else if (spec.dfu >= 6) sixUnitCount += 1;          // Table 703.2 note 4 "six-unit traps"
+        if (/^LAV/.test(spec.code || '')) lavCount += (spec.code === 'LAV-S' ? 3 : 1);
         if (spec.minWaste > maxMinWaste) maxMinWaste = spec.minWaste;
       }
     });
+    const lavOnly = nFix > 0 && lavCount > 0 && [...p.calc.fixtureSet].every(fid => /^LAV/.test(getFixtureSpec(nodeMap.get(fid)).code || ''));
     p.calc.dfu = sumDfu;
     p.calc.wcCount = wcCount;
     p.calc.minReq = Math.max(maxMinWaste, p.manualMinSize || 0);
-    const sized = sizeWastePipeByCode(sumDfu, wcCount, p.calc.minReq, p.slope || defSlope, codeMode);
+    const sized = sizeWastePipeByCode(sumDfu, wcCount, p.calc.minReq, p.slope || defSlope, codeMode,
+      { sixUnitCount, lavCount, lavOnly, isBuildingDrain: !!p.isBuildingDrain });
     p.calc.size = Math.max(sized.size, p.manualMinSize || 0);
     p.calc.warnings = sized.warnings;
   });
@@ -306,7 +246,7 @@ export function recalculateNetwork() {
     });
     p.calc.dfu = sumDfu;
     p.calc.minReq = Math.max(maxMinVent, largestWaste / 2, p.manualMinSize || 0);
-    const sized = sizeVentPipeByCode(sumDfu, maxMinVent, largestWaste, p.calc.lengthFt);
+    const sized = sizeVentPipeByCode(sumDfu, maxMinVent, largestWaste, p.calc.lengthFt, codeMode);
     p.calc.size = Math.max(sized.size, p.manualMinSize || 0);
     p.calc.warnings = sized.warnings;
   });

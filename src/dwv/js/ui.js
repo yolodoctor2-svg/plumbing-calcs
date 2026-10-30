@@ -100,6 +100,18 @@ export function updateInspector() {
           ${PIPE_SIZES.map(s => `<option value="${s}" ${Number(p.manualMinSize)===s?'selected':''}>Min ${fmtSize(s)}</option>`).join('')}
         </select>
       </div>
+      ${p.system !== 'vent' ? `
+      <div class="prop-row">
+        <label>Slope</label>
+        <select onchange="updateSelectedPipe('slope', this.value)">
+          <option value="0.25" ${!(Number(p.slope) < 0.25) ? 'selected' : ''}>1/4" / ft</option>
+          <option value="0.125" ${Number(p.slope) === 0.125 ? 'selected' : ''}>1/8" / ft</option>
+        </select>
+      </div>
+      <div class="prop-row" title="UPC 708.1: 1/8&quot;/ft is permitted only on building drain piping 4&quot; and larger, with prior AHJ approval">
+        <label>Building Drain</label>
+        <input type="checkbox" style="width:14px;height:14px;" ${p.isBuildingDrain ? 'checked' : ''} onchange="updateSelectedPipe('isBuildingDrain', this.checked ? 1 : 0)">
+      </div>` : ''}
       ${warnHtml}
       <button class="btn danger" style="width:100%; justify-content:center; margin-top:6px;" onclick="deleteSelected()">Delete Pipe</button>
     `;
