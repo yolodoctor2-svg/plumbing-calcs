@@ -2,7 +2,7 @@
 import { getFixtureSpec } from './catalog.js';
 import { requestFgRender } from './render.js';
 import { state } from './state.js';
-import { sizeWastePipeByCode, sizeVentPipeByCode } from './codetables.js';
+import { sizeWastePipeByCode, sizeVentPipeByCode, cwvCheck } from './codetables.js';
 import { requestScheduleRender, showToast, updateInspector } from './ui.js';
 // @end imports
 /* =========================================================================
@@ -148,6 +148,12 @@ export function recalculateNetwork() {
       { sixUnitCount, lavCount, lavOnly, isBuildingDrain: !!p.isBuildingDrain });
     p.calc.size = Math.max(sized.size, p.manualMinSize || 0);
     p.calc.warnings = sized.warnings;
+    if (p.isCWV && codeMode !== 'IPC2024') {
+      const fx = [...p.calc.fixtureSet].map(fid => getFixtureSpec(nodeMap.get(fid)));
+      const cw = cwvCheck(p.calc.size, fx, p.calc.lengthFt);
+      p.calc.size = Math.max(cw.size, p.manualMinSize || 0);
+      p.calc.warnings = sized.warnings.concat(cw.warnings);
+    }
   });
 
   // 2. Vent Graph

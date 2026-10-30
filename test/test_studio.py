@@ -103,6 +103,12 @@ with sync_playwright() as p:
             big = pg.evaluate("""(()=>{const s=window.PSS.state; const w=s.pipes.filter(p=>p.system==='waste'); const m=w.reduce((a,p)=>p.calc.dfu>a.calc.dfu?p:a);
                 m.manualMinSize=4; recalculateNetwork(); return [m.calc.size, m.calc.warnings.join('|')];})()""")
             check('UPC: 1/8"/ft on a 4" building drain -> x0.8 + AHJ approval warning', big[0] == 4 and 'AHJ' in big[1], big)
+            cw = pg.evaluate("""(()=>{const s=window.PSS.state; const w=s.pipes.filter(p=>p.system==='waste'); const m=w.reduce((a,p)=>p.calc.dfu>a.calc.dfu?p:a);
+                m.manualMinSize=0; m.slope=0.25; m.isCWV=1; recalculateNetwork(); const r=[m.calc.size, m.calc.warnings.join('|')]; m.isCWV=0;
+                document.getElementById('codeMode').value='UPC2024_APPC'; recalculateNetwork(); const a=[m.calc.size, m.calc.warnings.join('|')];
+                document.getElementById('codeMode').value='UPC2024'; recalculateNetwork(); return {cwv:r, appc:a};})()""")
+            check('UPC: CWV pipe flags WCs (910.7) and upsizes two sizes', '910.7' in cw['cwv'][1] and cw['cwv'][0] == 4, cw)
+            check('App. C mode: 4 WCs on a 3" building drain bumped to 4" (C 304.2 note 2)', cw['appc'][0] == 4 and 'C 304.2' in cw['appc'][1], cw)
             check('UPC: no page errors', not errs, errs)
         ctx.close()
     om = max(upc['orig'], key=lambda r: r[3])

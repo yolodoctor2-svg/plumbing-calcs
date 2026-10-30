@@ -1,5 +1,5 @@
 // Unit tests for src/dwv/js/codetables.js (UPC 2024 / Clark Co. rules). Run: node test/test_codetables.mjs
-import { sizeWastePipeByCode as W, sizeVentPipeByCode as V, cwvUpsize, UPC_703_2 } from '../src/dwv/js/codetables.js';
+import { sizeWastePipeByCode as W, sizeVentPipeByCode as V, cwvUpsize, cwvCheck, UPC_703_2 } from '../src/dwv/js/codetables.js';
 let pass = 0, fail = 0;
 const t = (name, cond, info = '') => { if (cond) { pass++; console.log('ok ' + name); } else { fail++; console.log('!! ' + name + ' :: ' + JSON.stringify(info)); } };
 const U = 'UPC2024';
@@ -47,5 +47,18 @@ t('IPC waste unchanged (3 WCs -> 4")', W(18, 3, 3, 0.25, 'IPC2024').size === 4);
 t('IPC vent unchanged (2.5" row)', V(30, 1.25, 2, 10, 'IPC2024').size === 2.5);
 // CWV (Appendix B 101.6.1 size ladder)
 t('CWV two sizes: 2->3, 3->4, 4->5, 1.5->2.5', [2, 3, 4, 1.5].map(cwvUpsize).join() === '3,4,5,2.5');
+// Appendix C engineered mode (Tables C 304.2 / C 304.3) — Cyrex's original large-pipe values
+const C = 'UPC2024_APPC';
+t('App C bldg drain 1/4: 6" = 840', W(840, 0, 1.5, 0.25, C, { isBuildingDrain: true }).size === 6 && W(841, 0, 1.5, 0.25, C, { isBuildingDrain: true }).size === 8);
+t('App C bldg drain 1/4: 8" = 1920', W(1920, 0, 1.5, 0.25, C, { isBuildingDrain: true }).size === 8);
+t('App C bldg drain 1/8: 4" = 180 + AHJ', (r => r.size === 4 && has(r, /AHJ/))(W(180, 0, 1.5, 0.125, C, { isBuildingDrain: true })));
+t('App C bldg drain 2-1/2" = 24 at 1/4', W(24, 0, 1.5, 0.25, C, { isBuildingDrain: true }).size === 2.5);
+t('App C branch: C 304.3 (3" = 20, 2 WCs max)', W(20, 2, 3, 0.25, C).size === 3 && W(21, 2, 3, 0.25, C).size === 4 && W(12, 3, 3, 0.25, C).size === 4);
+t('App C vent warns Table C 401.1 not implemented', has(V(10, 1.25, 2, 10, C), /C 401\.1/));
+// CWV checks
+t('CWV: 2" -> 3" with 910.4 note', (r => r.size === 3 && has(r, /910\.4/))(cwvCheck(2, [{ code: 'FD-2' }], 10)));
+t('CWV: WC/urinal flagged (910.7)', has(cwvCheck(3, [{ code: 'WC-P', isWC: true }, { code: 'UR-W' }], 10), /910\.7/));
+t('CWV: bar sink / kitchen flagged (B 101.2)', has(cwvCheck(2, [{ code: 'SK-B2' }], 10), /B 101\.2/));
+t('CWV: branch > 15 ft flagged (910.3)', has(cwvCheck(2, [{ code: 'FD-2' }], 20), /15'/));
 console.log(`PASS ${pass} FAIL ${fail}`);
 process.exit(fail ? 1 : 0);

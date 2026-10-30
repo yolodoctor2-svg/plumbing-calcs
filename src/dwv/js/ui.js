@@ -111,6 +111,10 @@ export function updateInspector() {
       <div class="prop-row" title="UPC 708.1: 1/8&quot;/ft is permitted only on building drain piping 4&quot; and larger, with prior AHJ approval">
         <label>Building Drain</label>
         <input type="checkbox" style="width:14px;height:14px;" ${p.isBuildingDrain ? 'checked' : ''} onchange="updateSelectedPipe('isBuildingDrain', this.checked ? 1 : 0)">
+      </div>
+      <div class="prop-row" title="UPC 910 / Appendix B combination waste &amp; vent: two pipe sizes over Chapter 7; no WCs/urinals; no restaurant kitchen equipment">
+        <label>Comb. Waste &amp; Vent</label>
+        <input type="checkbox" style="width:14px;height:14px;" ${p.isCWV ? 'checked' : ''} onchange="updateSelectedPipe('isCWV', this.checked ? 1 : 0)">
       </div>` : ''}
       ${warnHtml}
       <button class="btn danger" style="width:100%; justify-content:center; margin-top:6px;" onclick="deleteSelected()">Delete Pipe</button>

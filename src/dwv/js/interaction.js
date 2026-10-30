@@ -62,7 +62,7 @@ export function splitPipeAtPoint(pipe, x, y) {
   state.pipes.push({
     id: state.nextId++, n1: jNode.id, n2: origN2,
     system: pipe.system, slope: pipe.slope,
-    manualMinSize: pipe.manualMinSize || 0, ...(pipe.isBuildingDrain ? { isBuildingDrain: 1 } : {}), calc: {}
+    manualMinSize: pipe.manualMinSize || 0, ...(pipe.isBuildingDrain ? { isBuildingDrain: 1 } : {}), ...(pipe.isCWV ? { isCWV: 1 } : {}), calc: {}
   });
   return jNode;
 }
